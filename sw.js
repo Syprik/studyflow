@@ -88,6 +88,12 @@ self.addEventListener('fetch', event => {
   // Supabase API — не перехватываем вообще
   if (NEVER_CACHE_PATTERNS.some(p => req.url.includes(p))) return;
 
+  // Запросы с явным запретом кэша (например, проверка связи из offline.html) не берём из кэша
+  if (req.cache === 'no-store') {
+    event.respondWith(fetch(req));
+    return;
+  }
+
   // HTML-навигация (открытие страницы, переход по ссылке)
   if (req.mode === 'navigate') {
     event.respondWith(networkFirstNavigate(req));

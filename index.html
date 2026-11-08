@@ -281,6 +281,13 @@
         inset 0 -1px 2px var(--glass-rim),
         0 16px 32px -4px rgba(0, 0, 0, 0.45);
     }
+    details.glass-card {
+      box-shadow: none;
+    }
+    details.glass-card:hover {
+      transform: none;
+      box-shadow: none;
+    }
 
     header {
       position: sticky;
@@ -518,7 +525,7 @@
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: brandFlow 3s ease-in-out infinite alternate;
+      animation: brandFlow 60s ease-in-out infinite alternate;
     }
 
     /* Мягкий отскок при поимке таймера (без раздувания) */
@@ -528,25 +535,26 @@
       font-size: 17px;
       font-weight: 800;
       letter-spacing: -0.2px;
-      background: linear-gradient(135deg, var(--text) 45%, var(--accent));
-      background-size: 200% 200%;
+      background: linear-gradient(135deg, var(--text) 20%, var(--accent) 45%, var(--sf-flow-mid) 55%, var(--accent) 80%, var(--text) 100%);
+      background-size: 300% 300%;
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: brandFlow 3s ease-in-out infinite alternate;
+      animation: brandFlow 60s ease-in-out infinite alternate;
     }
 
     .brand-timer #islandSubj {
       background: linear-gradient(135deg, var(--accent), var(--sf-flow-mid), var(--sf-flow-1));
-      background-size: 200% 200%;
+      background-size: 300% 300%;
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: brandFlow 3s ease-in-out infinite alternate;
+      animation: brandFlow 60s ease-in-out infinite alternate;
     }
     @keyframes brandFlow {
-      from { background-position: 0% 50%; }
-      to { background-position: 100% 50%; }
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     @media (prefers-reduced-motion: reduce) {
       .brand-title,
@@ -568,6 +576,7 @@
       max-width: 1080px;
       margin: 0 auto;
       padding: 18px 20px;
+      padding-bottom: 140px;
     }
 
     .view-section {
@@ -653,7 +662,7 @@
     }
     .input:focus { border-color: var(--accent); box-shadow: 0 0 12px var(--glow); }
     .input:disabled { opacity: 0.6; }
-    textarea.input { resize: vertical; }
+    textarea.input { resize: none; }
     select.input option, select.input optgroup { background: var(--bg); color: var(--text); }
     select.input option:checked { background: var(--accent); color: #fff; }
     select.input {
@@ -691,9 +700,6 @@
       box-shadow: inset 0 1px 1px var(--glass-highlight);
       font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    #periodChips .chip {
-      padding: 6px 10px;
-    }
     .chip.active { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 3px 12px var(--glow); }
     /* Действие, а не фильтр: отличается по виду, чтобы не путать с чипами выбора. */
     .chip-action {
@@ -702,11 +708,45 @@
       color: var(--accent);
     }
     .chip-action:hover { background: var(--card-sub); }
+    /* Segmented control для фильтров задач */
+    .filter-chips-wrapper {
+      position: relative;
+      border-radius: 999px;
+    }
+    #filterChips {
+      display: inline-flex;
+      background: var(--chip-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #filterChips::-webkit-scrollbar { display: none; }
+    #filterChips .chip {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      background: transparent;
+      box-shadow: none;
+      flex-shrink: 0;
+    }
+    #filterChips .chip.active {
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 0 2px 10px var(--glow);
+    }
+    #filterChips .chip:hover:not(.active) {
+      background: var(--card-sub);
+    }
     .prio-critical { border-left-color: var(--danger) !important; box-shadow: -2px 0 18px -4px var(--danger) !important; }
 
+    /* Новые стили для карточек задач */
     .task-card {
-      padding: 18px 20px; margin-bottom: 12px; border-left: 3px solid var(--accent);
-      display: flex; flex-direction: column; gap: 10px;
+      overflow: visible;
+      padding: 20px; margin-bottom: 12px; border-left: 3px solid var(--accent);
+      display: flex; flex-direction: column; gap: 12px;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
     .task-card:hover {
@@ -718,6 +758,211 @@
     .task-card.prio-normal    { border-left-color: var(--info); }
     .task-card.prio-later     { border-left-color: var(--muted); }
     .task-card.is-done        { border-left-color: var(--success); }
+
+    /* Верхняя строка: чекбокс + предмет + текст */
+    .task-top {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .task-check {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--chip-bg);
+      cursor: pointer;
+      margin-top: 2px;
+      transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .task-check:hover {
+      border-color: var(--accent);
+      background: var(--card-sub);
+    }
+    .task-check.checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .task-check.checked::after {
+      content: '✓';
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .task-top-body {
+      flex: 1; min-width: 0;
+    }
+    .task-subj-prio {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .task-subj-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      color: var(--muted);
+    }
+    .task-urgent-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--danger);
+      flex-shrink: 0;
+    }
+    .task-text {
+      font-size: 15px; font-weight: 700; line-height: 1.3;
+      white-space: pre-wrap; margin-top: 4px;
+    }
+    .task-card.is-done .task-text {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+    /* Мета-строка */
+    .task-meta {
+      font-size: 12px; color: var(--muted);
+      line-height: 1.4;
+    }
+    .task-meta .meta-sep {
+      margin: 0 4px;
+      opacity: 0.4;
+    }
+    /* Кнопки карточки */
+    .task-actions {
+      display: flex; align-items: center; gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .btn-start {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      background: var(--grad);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 10px var(--glow);
+      transition: all 0.2s ease;
+    }
+    .btn-start:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--glow);
+    }
+    .btn-decompose {
+      font-size: 12px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .btn-decompose:hover {
+      background: var(--card-sub);
+    }
+    /* Меню действий (редактировать/удалить) */
+    /* Карточка с открытым меню должна быть выше соседних карточек */
+    .task-card:has(.task-more-dropdown.show),
+    .task-card.menu-open {
+      z-index: 30 !important;
+    }
+
+    .task-more-menu {
+      position: relative;
+      margin-left: auto;
+    }
+    .task-more-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      line-height: 1;
+      opacity: 0.4;
+      transition: all 0.2s;
+    }
+    .task-more-btn:hover {
+      opacity: 1;
+      background: var(--card-sub);
+    }
+    .task-more-dropdown {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: var(--card-solid);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px;
+      min-width: 160px;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .task-more-dropdown.show {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .task-more-dropdown button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      text-align: left;
+      padding: 9px 12px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 9px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .task-more-dropdown button:hover {
+      background: var(--card-sub);
+    }
+    .task-more-dropdown button.danger {
+      color: var(--danger);
+    }
+    .task-more-dropdown button.danger:hover {
+      background: rgba(255, 77, 109, 0.15);
+    }
+    /* Разделитель перерыва */
+    .break-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 16px 0;
+      opacity: 0.6;
+    }
+    .break-divider::before,
+    .break-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .break-divider span {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .break-divider .btn-break {
+      font-size: 12px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: underline;
+      padding: 0;
+      white-space: nowrap;
+    }
     .task-meta {
       display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
       font-size: 11.5px; color: var(--muted); opacity: 0.85;
@@ -778,12 +1023,16 @@
       vertical-align: middle;
     }
     .ai-dot-ai {
-      background: #ff5b64;
-      box-shadow: 0 0 5px rgba(255,91,100,0.6);
-    }
-    .ai-dot-local {
       background: #06d6a0;
       box-shadow: 0 0 5px rgba(6,214,160,0.6);
+    }
+    .ai-dot-local {
+      background: #888;
+      box-shadow: 0 0 5px rgba(136,136,136,0.4);
+    }
+    .sync-dot {
+      width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+      transition: background 0.3s;
     }
     .break-card {
       background: var(--card-sub);
@@ -799,6 +1048,96 @@
     }
     .break-card > div { flex: 1 1 180px; }
     .break-card .btn-act { flex: 0 0 auto; }
+
+    /* ---------- Архив ---------- */
+    .archive-clear-btn {
+      background: var(--ctrl-bg);
+      border: 1px solid var(--border);
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 999px;
+      transition: all 0.2s;
+    }
+    .archive-clear-btn:hover {
+      background: rgba(255, 77, 109, 0.14);
+    }
+    .archive-group {
+      margin-bottom: 16px;
+    }
+    .archive-group-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .archive-group-card {
+      padding: 4px 0;
+    }
+    .archive-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.15s;
+    }
+    .archive-row:last-child {
+      border-bottom: none;
+    }
+    .archive-check {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: rgba(6, 214, 160, 0.2);
+      color: var(--success);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800;
+    }
+    .archive-check::after {
+      content: '✓';
+    }
+    .archive-overdue .archive-check {
+      background: rgba(255, 77, 109, 0.2);
+      color: var(--danger);
+    }
+    .archive-overdue .archive-check::after {
+      content: '✕';
+    }
+    .archive-subj {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .archive-text {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+    .archive-done {
+      text-decoration: line-through;
+      opacity: 0.65;
+    }
+    .archive-status-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--danger);
+      flex-shrink: 0;
+    }
     .exercise-item {
       display: flex;
       align-items: flex-start;
@@ -1025,13 +1364,113 @@
     }
     #timerView {
       height: 100dvh;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
       box-sizing: border-box;
+      padding: 24px;
+      padding-top: 80px; /* Отступ для верхних кнопок */
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
     }
-    .timer-view.active { display: flex; }
+    #timerView.active { display: flex; }
 
+    /* Верхние кнопки свернуть / закрыть фиксируем по углам */
+    #timerTopControls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      width: calc(100% - 40px);
+      max-width: none;
+      pointer-events: none;
+      margin: 0;
+    }
+    #timerTopControls button {
+      pointer-events: auto;
+    }
+
+    /* Контейнер таймера (верхняя часть) */
+    #timerContent {
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .timer-circle {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 8px auto;
+    }
+
+    /* Группировка для низа: карточка и кнопки */
+    .timer-bottom-group {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      flex: 0 0 auto;
+    }
+
+    /* Карточка разминки */
+    #smartBreakCard {
+      flex: 0 0 auto;
+      height: auto;
+      overflow: hidden;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    /* Кнопки */
+    #timerControls {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    /* Мобильный вид (до 600px или низкие экраны) */
+    @media (max-width: 600px), (max-height: 760px) {
+      #timerView {
+        justify-content: space-between;
+        padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+        padding-top: 80px; /* Отступ сверху для кнопок */
+        gap: 0;
+      }
+      #timerTopControls {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        width: calc(100% - 32px);
+      }
+      #timerView.is-break #timerContent {
+        justify-content: center;
+        flex: 1 1 auto !important;
+        margin: 0 !important;
+      }
+      #timerView.is-break .timer-circle {
+        display: none !important;
+      }
+      #timerView.is-break #timerCompactBar {
+        display: block !important;
+        width: 100%;
+        margin: 12px auto 8px !important;
+      }
+    }
+
+    /* Анимации сворачивания/разворачивания */
     .timer-view.is-collapsing {
       display: flex !important;
       transform: translateY(-80px) scale(0.2);
@@ -1058,23 +1497,10 @@
       animation: islandCatch 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* .timer-view:not(.mini) — отключено, таймер снова на весь экран */
-    /* .timer-view:not(.mini) {
-      overflow-y: auto;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-    }
-    .timer-view:not(.mini) > .timer-mini-hide {
-      width: 100%;
-      max-width: 460px;
-    } */
     #timerMainBtns { display: flex; gap: 8px; }
     #timerMainBtns > button { flex: 1 1 0; min-width: 0; }
 
-    /* Свёрнутый таймер: небольшая карточка поверх интерфейса, чтобы можно было
-       работать с планировщиком, не теряя отсчёт. */
-    /* Позиция задаётся через left/top, чтобы transform отсчитывался от угла экрана. */
+    /* Свёрнутый таймер: небольшая карточка поверх интерфейса */
     .timer-view.mini {
       top: 0; left: 0; right: auto; bottom: auto;
       width: 216px; height: auto; padding: 12px 14px;
@@ -1093,37 +1519,16 @@
     .timer-view.mini .timer-mini-hide { display: none !important; }
     .timer-view.mini .timer-mini-show { display: flex !important; }
     .timer-mini-show { display: none; }
-    #timerView.is-break #timerContent {
-      justify-content: flex-start;
-      padding-bottom: 10px;
-    }
-    #timerView.is-break .timer-circle { display: none !important; }
-    #timerView.is-break #timerCompactBar {
-      display: block !important;
-      order: 3;
-      flex: 0 0 auto;
-      margin: auto auto 12px !important;
-    }
-    #timerView.is-break #smartBreakCard {
-      order: 4;
-      flex: 0 0 auto;
-      max-height: none;
-      margin: 0 auto !important;
-    }
-    #timerView.is-break #timerControls {
-      gap: 8px;
-      margin-top: 8px;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
 
+    /* Карточка разминки */
     #smartBreakCard {
-      flex: 1 1 auto;
-      max-height: 320px;
+      flex: 0 0 auto;
+      height: auto;
       overflow: hidden;
     }
     #smartBreakCard:hover { transform: none !important; }
     #stepTimer { min-width: 48px; text-align: center; display: inline-flex; justify-content: center; }
-    #stepDesc { height: 60px; overflow-y: auto; }
+    #stepDesc { height: auto; max-height: 80px; overflow-y: auto; }
     #smartBreakCard.is-loading {
       animation: breakCardPulse 1.2s ease-in-out infinite;
     }
@@ -1147,14 +1552,6 @@
     @keyframes refreshRotate {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
-    }
-    @media (max-height: 740px), (max-width: 420px) {
-      #timerView.is-break .timer-circle { display: none !important; }
-      #timerView.is-break #timerCompactBar {
-        display: block !important;
-        margin: auto auto 12px !important;
-      }
-      #timerView.is-break #smartBreakCard { max-height: none; }
     }
 
     .mini-row { display: flex; align-items: center; gap: 10px; }
@@ -1404,6 +1801,17 @@
       touch-action: manipulation;
       -webkit-user-select: auto;
     }
+
+    /* Увеличение элементов на больших экранах */
+    @media (min-width: 600px) {
+      .timer-circle { width: 280px; height: 280px; margin: 16px auto; }
+      .timer-digits { font-size: 56px; }
+      #timerSubj { font-size: 16px; margin-bottom: 8px; }
+      #timerTitle { font-size: 24px; margin: 12px 0 24px 0; }
+      #timerControls { max-width: 500px; }
+      #timerMainBtns button { padding: 16px; font-size: 16px; }
+      #smartBreakCard { max-width: 500px; }
+    }
   </style>
 </head>
 <body>
@@ -1448,6 +1856,15 @@
     <section id="view-overview" class="view-section active">
       <div class="title"><span>обзор и статистика</span></div>
 
+       <div class="glass ai-day-review" id="aiDayReviewBanner">
+          <span aria-hidden="true" style="font-size:20px;line-height:1;">✨</span>
+          <div class="ai-day-review-content">
+             <div id="aiDayReviewTitle" style="font-size:10px;font-weight:800;letter-spacing:.4px;color:var(--accent);margin-bottom:3px;">AI-итог дня</div>
+            <strong id="aiDayReviewText" style="font-weight:800;">Нажмите ↻, чтобы получить короткий итог.</strong>
+          </div>
+           <button type="button" class="btn-act" id="btnRefreshDayReview" onclick="requestAIDayReview()" title="обновить итог дня" aria-label="обновить итог дня">↻<span class="ai-dot ai-dot-ai" id="dayReviewIndicator" style="display:none;" title="ответ AI"></span></button>
+       </div>
+
       <div class="stats-grid">
         <div class="glass stat-cell">
           <div class="stat-label">открыто задач</div>
@@ -1475,31 +1892,14 @@
         <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
       </div>
 
-       <div class="section-title">итоги за период</div>
-       <div class="glass ai-day-review" id="aiDayReviewBanner">
-         <span aria-hidden="true" style="font-size:20px;line-height:1;">✨</span>
-         <div class="ai-day-review-content">
-           <div style="font-size:10px;font-weight:800;letter-spacing:.4px;color:var(--accent);margin-bottom:3px;">AI-итог дня</div>
-           <strong id="aiDayReviewText" style="font-weight:800;">Нажмите ↻, чтобы получить короткий итог.</strong>
-         </div>
-          <button type="button" class="btn-act" id="btnRefreshDayReview" onclick="requestAIDayReview()" title="обновить итог дня" aria-label="обновить итог дня">↻<span class="ai-dot ai-dot-ai" id="dayReviewIndicator" style="display:none;" title="ответ AI"></span></button>
-       </div>
-       <div class="chips" id="periodChips">
-        <button class="chip" data-p="day" onclick="setPeriod('day', this)">день</button>
-        <button class="chip" data-p="week" onclick="setPeriod('week', this)">неделя</button>
-        <button class="chip" data-p="month" onclick="setPeriod('month', this)">месяц</button>
-        <button class="chip" data-p="year" onclick="setPeriod('year', this)">год</button>
-        <button class="chip" data-p="all" onclick="setPeriod('all', this)">всё время</button>
-      </div>
+      <div class="section-title">итоги за период</div>
       <div class="stats-grid" id="periodStats"></div>
-      <div class="glass" style="padding: 12px 14px; margin-bottom: 16px; font-size: 12px; color: var(--muted);" id="periodHint"></div>
 
       <div class="section-title">расписание на неделю</div>
       <div class="week-row" id="weekPills"></div>
 
       <div class="glass" style="padding: 14px;">
         <div style="font-size: 15px; font-weight: 800; margin-bottom: 6px;" id="curDayTitle">понедельник</div>
-        <div id="curDayLessons" style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">уроков нет</div>
         <div style="font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px;">задания на этот день:</div>
         <div id="curDayTasks"></div>
       </div>
@@ -1557,7 +1957,7 @@
             <div id="smartParseHint" style="font-size: 11.5px; color: var(--accent); margin-top: 4px; display: none; transition: opacity 0.35s ease;"></div>
           </div>
           <details class="glass-card" style="margin-top:12px;padding:12px;">
-            <summary style="cursor:pointer;font-weight:700;font-size:12px;color:var(--muted);">точные параметры (день, срок, сложность)</summary>
+            <summary style="cursor:pointer;font-weight:700;font-size:12px;color:var(--muted);">точные параметры</summary>
             <div class="form-group" style="margin-top:12px;">
               <label class="label" for="addDay">учебный день:</label>
               <select id="addDay" class="input" required>
@@ -1581,29 +1981,20 @@
               <input type="date" id="addDue" class="input">
             </div>
             <div class="form-group">
-              <span class="label" id="addCompLabel">сложность:</span>
-              <div class="seg" id="addComp" role="group" aria-labelledby="addCompLabel">
-                <button type="button" class="seg-btn" data-v="test" aria-pressed="false">1 мин</button>
-                <button type="button" class="seg-btn" data-v="easy" aria-pressed="false">≈15 мин</button>
-                <button type="button" class="seg-btn active" data-v="normal_comp" aria-pressed="true">≈25 мин</button>
-                <button type="button" class="seg-btn" data-v="medium" aria-pressed="false">≈35 мин</button>
-                <button type="button" class="seg-btn" data-v="hard" aria-pressed="false">≈45 мин</button>
-              </div>
+              <label class="label" for="addComp">сложность:</label>
+              <select id="addComp" class="input">
+                <option value="test">1 мин (быстрая проверка)</option>
+                <option value="easy">≈15 мин (устный предмет, быстрое повторение)</option>
+                <option value="normal_comp" selected>≈25 мин (небольшое письменное задание)</option>
+                <option value="medium">≈35 мин (объёмное домашнее задание)</option>
+                <option value="hard">≈45 мин (проект, сочинение, контрольная)</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+              <input type="checkbox" id="addRepeat" style="width:16px;height:16px;accent-color:var(--accent);">
+              <label for="addRepeat" style="font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;">повторять каждую неделю</label>
             </div>
           </details>
-          <div class="form-group">
-            <span class="label" id="addPrioLabel">срочность:</span>
-            <div class="seg" id="addPrio" role="group" aria-labelledby="addPrioLabel">
-              <button type="button" class="seg-btn" data-v="urgent" aria-pressed="false">срочно</button>
-              <button type="button" class="seg-btn active" data-v="important" aria-pressed="true">важно</button>
-              <button type="button" class="seg-btn" data-v="normal" aria-pressed="false">обычное</button>
-              <button type="button" class="seg-btn" data-v="later" aria-pressed="false">позже</button>
-            </div>
-          </div>
-          <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-            <input type="checkbox" id="addRepeat" style="width:16px;height:16px;accent-color:var(--accent);">
-            <label for="addRepeat" style="font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;">повторять каждую неделю</label>
-          </div>
           <button type="submit" class="btn-main" style="margin-top: 8px;">добавить в план</button>
         </form>
       </div>
@@ -1617,12 +2008,14 @@
           <span class="badge-count" id="taskBadge">0</span>
         </div>
       </div>
-      <div class="chips" id="filterChips">
-        <button class="chip chip-action" id="aiPrioChip" onclick="aiPrioritizeTasks()" title="AI-оценка срочности и важности">✨ AI-приоритет</button>
-        <button class="chip chip-action" id="aiSchedChip" onclick="aiAutoScheduleTasks()" title="Распределить задачи по учебным дням">📅 AI-план недели</button>
-        <button class="chip chip-action" onclick="autoPrioritize()" id="urgencyPrioChip" title="расставить приоритеты по срочности и сложности">⚡ по срочности</button>
-        <button class="chip active" id="filterAllChip" data-f="all" onclick="setFilter('all', this)" aria-pressed="true">все задачи</button>
-        <button class="chip" id="filterSmartChip" data-f="smart" onclick="setFilter('smart', this)" aria-pressed="false">умная</button>
+      <div class="filter-chips-wrapper" style="margin-bottom: 20px;">
+        <div class="chips" id="filterChips">
+          <button class="chip chip-action" id="aiPrioChip" onclick="aiPrioritizeTasks()" title="AI-оценка срочности и важности">✨ AI-приоритет</button>
+          <button class="chip chip-action" id="aiSchedChip" onclick="aiAutoScheduleTasks()" title="Распределить задачи по учебным дням">📅 AI-план недели</button>
+          <button class="chip chip-action" onclick="autoPrioritize()" id="urgencyPrioChip" title="расставить приоритеты по срочности и сложности">⚡ по срочности</button>
+          <button class="chip active" id="filterAllChip" data-f="all" onclick="setFilter('all', this)" aria-pressed="true">все задачи</button>
+          <button class="chip" id="filterSmartChip" data-f="smart" onclick="setFilter('smart', this)" aria-pressed="false">умная</button>
+        </div>
       </div>
       <div id="tasksList"></div>
     </section>
@@ -1631,7 +2024,7 @@
     <section id="view-archive" class="view-section">
       <div class="title">
         <span>архив заданий</span>
-        <button class="btn-act btn-danger" onclick="clearArchive()">очистить</button>
+        <button class="archive-clear-btn" onclick="clearArchive()">очистить</button>
       </div>
       <div id="archiveList"></div>
     </section>
@@ -1773,7 +2166,7 @@
         <div class="settings-pill-default" id="setModalFooterDefault">
           <span class="settings-pill-logo">❖</span>
           <span aria-hidden="true">•</span>
-          <span class="settings-pill-ver">studyflow v7.5</span>
+          <span class="settings-pill-ver">studyflow v1.0</span>
         </div>
         <div class="settings-pill-notice" id="setModalFooterNotice" aria-live="polite">
           <span id="setNoticeIcon" class="settings-notice-icon"></span>
@@ -1818,23 +2211,14 @@
           <input type="date" id="editDue" class="input">
         </div>
         <div class="form-group">
-          <span class="label" id="editPrioLabel">срочность:</span>
-          <div class="seg" id="editPrio" role="group" aria-labelledby="editPrioLabel">
-            <button type="button" class="seg-btn" data-v="urgent" aria-pressed="false">срочно</button>
-            <button type="button" class="seg-btn active" data-v="important" aria-pressed="true">важно</button>
-            <button type="button" class="seg-btn" data-v="normal" aria-pressed="false">обычное</button>
-            <button type="button" class="seg-btn" data-v="later" aria-pressed="false">позже</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <span class="label" id="editCompLabel">сложность:</span>
-          <div class="seg" id="editComp" role="group" aria-labelledby="editCompLabel">
-            <button type="button" class="seg-btn" data-v="test" aria-pressed="false">1 мин</button>
-            <button type="button" class="seg-btn" data-v="easy" aria-pressed="false">≈15 мин</button>
-            <button type="button" class="seg-btn active" data-v="normal_comp" aria-pressed="true">≈25 мин</button>
-            <button type="button" class="seg-btn" data-v="medium" aria-pressed="false">≈35 мин</button>
-            <button type="button" class="seg-btn" data-v="hard" aria-pressed="false">≈45 мин</button>
-          </div>
+          <label class="label" for="editComp">сложность:</label>
+          <select id="editComp" class="input">
+            <option value="test">1 мин (быстрая проверка)</option>
+            <option value="easy">≈15 мин (устный предмет, быстрое повторение)</option>
+            <option value="normal_comp">≈25 мин (небольшое письменное задание)</option>
+            <option value="medium">≈35 мин (объёмное домашнее задание)</option>
+            <option value="hard">≈45 мин (проект, сочинение, контрольная)</option>
+          </select>
         </div>
         <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
           <input type="checkbox" id="editRepeat" style="width:16px;height:16px;accent-color:var(--accent);">
@@ -1897,13 +2281,17 @@
       <div class="mini-bar"><i id="miniBar"></i></div>
     </div>
 
-    <div class="timer-mini-hide" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <!-- Верхние кнопки -->
+    <div class="timer-mini-hide" id="timerTopControls" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
       <button class="icon-btn" onclick="collapseTimer()" aria-label="свернуть таймер" title="свернуть">—</button>
       <button class="icon-btn" onclick="abortTimer()" aria-label="выйти из таймера" title="выйти">✕</button>
     </div>
-    <div class="timer-mini-hide" id="timerContent" style="display:flex; flex:1 1 auto; min-height:0; overflow-y:auto; text-align:center; flex-direction:column;">
+
+    <!-- Верхняя часть: предмет, задание, круг таймера и компактный бар -->
+    <div class="timer-mini-hide" id="timerContent" style="display:flex; flex:0 0 auto; text-align:center; flex-direction:column; align-items:center; width: 100%;">
       <div style="font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: 1px;" id="timerSubj">предмет</div>
       <div style="font-size: 20px; font-weight: 800; margin: 6px 0;" id="timerTitle">задание</div>
+      
       <div class="timer-circle">
         <svg class="timer-svg" viewBox="0 0 200 200" aria-hidden="true">
           <circle class="timer-circ-bg" cx="100" cy="100" r="96"></circle>
@@ -1915,23 +2303,30 @@
           <span class="badge" style="background: rgba(142,97,255,0.2); color: var(--accent); margin-top: 4px;" id="timerPhase">фаза работы</span>
         </div>
       </div>
-      <div class="timer-compact-bar" id="timerCompactBar" style="display: none;">
-        <div class="compact-time-row" style="display: flex; justify-content: center; align-items: baseline; gap: 8px; margin-bottom: 6px;">
-          <span class="timer-digits" id="compactDigits" style="font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums;">05:00</span>
-          <span class="badge" style="background: rgba(6, 214, 160, 0.15); color: var(--success); font-size: 11px;">фаза отдыха</span>
+
+      <!-- Компактный бар (Время + Прогресс) для фазы отдыха -->
+      <div class="timer-compact-bar" id="timerCompactBar" style="display: none; width: 100%; max-width: 380px; margin: 0 auto 16px;">
+        <div class="compact-time-row" style="display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-bottom: 10px;">
+          <span class="timer-digits" id="compactDigits" style="font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums;">05:00</span>
+          <span class="badge" style="background: rgba(6, 214, 160, 0.15); color: var(--success); font-size: 12px; padding: 4px 10px;">фаза отдыха</span>
         </div>
-        <div class="prog-bg" style="height: 5px; max-width: 380px; margin: 0 auto; background: var(--track); border-radius: 999px; overflow: hidden;">
+        <div class="prog-bg" style="height: 6px; width: 100%; background: var(--track); border-radius: 999px; overflow: hidden;">
           <div class="prog-fill" id="compactBarFill" style="height: 100%; width: 100%; background: var(--success); transition: width 0.5s linear;"></div>
         </div>
       </div>
-      <div id="smartBreakCard" class="glass-card" style="display:none; position:relative; overflow:hidden; padding:16px 18px 12px; margin:8px auto 0; max-width:420px; width:100%; text-align:left;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:8px;">
+    </div>
+
+    <!-- Нижняя группа: Карточка разминки и Кнопки -->
+    <div class="timer-bottom-group" style="width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: auto;">
+      
+      <div id="smartBreakCard" class="glass-card" style="display:none; position:relative; overflow:hidden; padding:14px 16px 10px; margin:0 auto; max-width:440px; width:100%; text-align:left;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:6px;">
           <div id="stepTitle" style="font-weight:800; font-size:16px; color:var(--text); line-height:1.2;">Загрузка...</div>
           <div id="stepTimer" style="font-variant-numeric:tabular-nums; font-weight:800; font-size:13px; color:var(--success); background:rgba(6,214,160,0.15); padding:3px 10px; border-radius:999px; flex-shrink:0;">0:00</div>
         </div>
-        <div id="stepDesc" style="font-size:13px; color:var(--muted); line-height:1.45; min-height:54px; margin-bottom:10px;"></div>
-        <button type="button" class="btn-main btn-success" id="breakStepAction" onclick="nextBreakStep(true)" style="width:100%; margin:0 0 12px;">следующее упражнение ➔</button>
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; padding-top:8px; border-top:1px solid var(--border);">
+        <div id="stepDesc" style="font-size:13px; color:var(--muted); line-height:1.45; min-height:0; margin-bottom:6px;"></div>
+        <button type="button" class="btn-main btn-success" id="breakStepAction" onclick="nextBreakStep(true)" style="width:100%; margin:0 0 8px;">следующее упражнение ➔</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; padding-top:6px; border-top:1px solid var(--border);">
           <span id="breakCategory" style="font-weight:800; color:var(--accent); letter-spacing:0.3px;">✨ AI • Загрузка...</span>
           <div style="display:flex; align-items:center; gap:8px;">
             <span id="breakStepBadge" style="color:var(--muted); font-weight:700;">1 / 3</span>
@@ -1944,13 +2339,14 @@
           <div class="prog-fill" id="breakStepProg" style="height:100%; width:0%; background:var(--success); transition:width 0.5s linear;"></div>
         </div>
       </div>
-    </div>
-    <div class="timer-mini-hide" id="timerControls" style="display:flex; flex-direction:column; gap:8px; width:100%;">
-      <div id="timerMainBtns">
-        <button class="btn-main" id="timerToggleBtn" onclick="toggleTimer()">пауза</button>
-        <button class="btn-main btn-success" id="timerFinishBtn" onclick="finishTask()">завершить задачу</button>
+      
+      <div class="timer-mini-hide" id="timerControls" style="display:flex; flex-direction:column; gap:8px; width:100%;">
+        <div id="timerMainBtns">
+          <button class="btn-main" id="timerToggleBtn" onclick="toggleTimer()">пауза</button>
+          <button class="btn-main btn-success" id="timerFinishBtn" onclick="finishTask()">завершить задачу</button>
+        </div>
+        <button class="btn-act" id="btnSkipBreak" onclick="skipBreak()" style="background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; width:100%; padding:8px; margin-top:4px; display:none;">закончить отдых досрочно</button>
       </div>
-      <button class="btn-act" id="btnSkipBreak" onclick="skipBreak()" style="background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; width:100%; padding:8px; margin-top:4px; display:none;">закончить отдых досрочно</button>
     </div>
 
     <div class="modal-overlay" id="timerPhaseModal" style="background: rgba(0,0,0,0.8);">
@@ -1960,10 +2356,10 @@
         <div style="display: flex; flex-direction: column; gap: 8px;">
           <button class="btn-main" id="btnGoBreak" onclick="startBreak()">перейти к отдыху</button>
           <button class="btn-main btn-success" onclick="finishTask()">завершить задачу</button>
- <button class="btn-act" id="btnAdd5" onclick="add5Min()">+5 мин продолжить</button>
-           <button class="btn-act" id="btnBackWork" onclick="startWorkAgain()" style="display:none;">ещё один рабочий цикл</button>
-           <button class="btn-act" id="btnNextTask" style="display:none;">⚡ следующая задача</button>
-           <button class="btn-act" id="btnAbort" onclick="abortTimer()">выйти, задача останется в плане</button>
+          <button class="btn-act" id="btnAdd5" onclick="add5Min()">+5 мин продолжить</button>
+          <button class="btn-act" id="btnBackWork" onclick="startWorkAgain()" style="display:none;">ещё один рабочий цикл</button>
+          <button class="btn-act" id="btnNextTask" style="display:none;">⚡ следующая задача</button>
+          <button class="btn-act" id="btnAbort" onclick="abortTimer()">выйти, задача останется в плане</button>
         </div>
       </div>
     </div>
@@ -2004,6 +2400,7 @@
     const SUPABASE_URL = 'https://lhdqptvqpvecoouxjnpw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_4hDZ3w1hYmQ1RCWu1Ge5ug_Q_n7bivL';
     let sbClient = null;
+    let isAuthenticated = false;
 
     function initSupabase() {
       if (sbClient || !window.supabase) return;
@@ -2023,46 +2420,47 @@
     }
 
      // ---------- Supabase Auth ----------
-     async function handleSignUp() {
+      async function handleSignUp() {
+        if (!sbClient) return showToast('supabase не подключен', '!');
+        const email = $('auth-email').value.trim();
+        const password = $('auth-password').value.trim();
+        if (!email || !password) return showToast('введите email и пароль', '!');
+        if (password.length < 6) return showToast('пароль должен быть не короче 6 символов', '!');
+
+        const emailLower = email.toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailLower)) {
+          showToast('введите корректный email', '!');
+          return;
+        }
+        if (/@(?:mail|bk|inbox|list)\.ru$/.test(emailLower)) {
+          showToast('почты Mail.ru не поддерживаются. используйте Gmail, Outlook, Яндекс или iCloud', '!');
+          return;
+        }
+
+        const { data, error } = await sbClient.auth.signUp({ email, password });
+        if (error) {
+          showToast('ошибка регистрации: ' + error.message, '!');
+        } else if (data && data.user && !data.session) {
+          showToast('регистрация успешна! подтвердите письмо на почте и войдите');
+        } else {
+          showToast('регистрация успешна! пробуем войти...');
+          _cloudSyncToastShown = false;
+          checkUser();
+        }
+      }
+
+     async function handleSignIn() {
        if (!sbClient) return showToast('supabase не подключен', '!');
        const email = $('auth-email').value.trim();
-       const password = $('auth-password').value.trim();
-       if (!email || !password) return showToast('введите email и пароль', '!');
-
-       const emailLower = email.toLowerCase();
-       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailLower)) {
-         showToast('введите корректный email', '!');
-         return;
+       const password = $('auth-password').value;
+       if (!email || !password.trim()) {
+         return showToast('введите email и пароль', '!');
        }
-       if (/@(?:mail|bk|inbox|list)\.ru$/.test(emailLower)) {
-         showToast('почты Mail.ru не поддерживаются. используйте Gmail, Outlook, Яндекс или iCloud', '!');
-         return;
-       }
-
-       const { data, error } = await sbClient.auth.signUp({ email, password });
+       const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
        if (error) {
-         showToast('ошибка регистрации: ' + error.message, '!');
-       } else if (data && data.user && !data.session) {
-         showToast('регистрация успешна! подтвердите письмо на почте и войдите');
+         showToast('ошибка входа: ' + error.message, '!');
        } else {
-         showToast('регистрация успешна! пробуем войти...');
-         _cloudSyncToastShown = false;
-         checkUser();
-       }
-     }
-
-    async function handleSignIn() {
-      if (!sbClient) return showToast('supabase не подключен', '!');
-      const email = $('auth-email').value.trim();
-      const password = $('auth-password').value;
-      if (!email || !password.trim()) {
-        return showToast('введите email и пароль', '!');
-      }
-      const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        showToast('ошибка входа: ' + error.message, '!');
-      } else {
-        showToast('успешный вход в облако');
+         showToast('успешный вход в облако');
         _cloudSyncToastShown = false;
       }
     }
@@ -2097,6 +2495,7 @@
       }
 
       const currentUser = session ? session.user : null;
+      isAuthenticated = Boolean(currentUser);
 
       const guestUI = $('auth-guest-ui');
       const userUI = $('auth-user-ui');
@@ -2109,11 +2508,15 @@
         if (emailSpan) emailSpan.textContent = currentUser.email;
 
         await loadFromCloud(currentUser.id);
+        updateAIFeatureVisibility();
+        renderTasks();
       } else {
         if (guestUI) guestUI.style.display = 'block';
         if (userUI) userUI.style.display = 'none';
         if (emailSpan) emailSpan.textContent = '';
         setSyncStatus('offline');
+        updateAIFeatureVisibility();
+        renderTasks();
       }
     }
 
@@ -2121,8 +2524,10 @@
     let _cloudSyncToastShown = false;
 
     function applyCloudPayload(c) {
+      clearTimeout(cloudSyncTimer);
+      cloudSyncGeneration += 1;
       if (VALID_THEMES.includes(c.ep_theme)) state.theme = c.ep_theme;
-      if (c.ep_liquid !== undefined) state.liquid = c.ep_liquid === 'true';
+      if (!IS_ANDROID && c.ep_liquid !== undefined) state.liquid = c.ep_liquid === 'true';
       if (VALID_TABS.includes(c.ep_start)) state.start = c.ep_start;
       if (VALID_PERIODS.includes(c.ep_period)) state.period = c.ep_period;
       if (c.ep_work) state.work = clamp(toInt(c.ep_work, 25), 1, 180);
@@ -2145,6 +2550,10 @@
       for (const k of Object.keys(c)) {
         writeRaw(k, c[k]);
       }
+      if (!c.ep_updated_at) {
+        writeRaw('ep_updated_at', String(Date.now()));
+      }
+      removeRaw('ep_sync_dirty');
 
       updateDaysConfig();
       updateAIFeatureVisibility();
@@ -2162,13 +2571,18 @@
         setSyncStatus('offline');
         return;
       }
+      // Если прямо сейчас есть несохранённые локальные правки в очереди — сначала пушим их в облако
+      if (cloudSyncTimer || readRaw('ep_sync_dirty') === '1') {
+        save(true);
+        return;
+      }
       setSyncStatus('syncing');
       try {
-        const { data, error } = await sbClient
+        const { data: rows, error } = await sbClient
           .from('user_data')
           .select('payload')
           .eq('user_id', userId)
-          .maybeSingle();
+          .limit(1);
 
         if (error) {
           console.error('Ошибка загрузки из облака:', error.message);
@@ -2176,20 +2590,19 @@
           return;
         }
 
-        const cloudPayload = data && data.payload ? data.payload : null;
+        const cloudPayload = Array.isArray(rows) && rows[0] && rows[0].payload ? rows[0].payload : null;
         const localPayload = buildLocalPayload();
 
         const cloudStats = countDataStats(cloudPayload);
         const localStats = countDataStats(localPayload);
 
-        // 1. Облако пустое → просто пушим локальные
+        // 1. Облако пустое → пушим локальные данные
         if (!cloudPayload || !hasData(cloudStats)) {
           save(true);
-          setSyncStatus('saved');
           return;
         }
 
-        // 2. Локально пусто → просто принимаем облако
+        // 2. Локально пусто → загружаем из облака
         if (!hasData(localStats)) {
           applyCloudPayload(cloudPayload);
           if (showNotify && !_cloudSyncToastShown) {
@@ -2200,24 +2613,45 @@
           return;
         }
 
-        // 3. Оба источника с данными
+        // 3. Оба источника с данными — сверяем метки времени (ep_updated_at)
+        const localTs = Number(localPayload.ep_updated_at || 0);
+        const cloudTs = Number(cloudPayload.ep_updated_at || 0);
+
+        if (localTs > 0 && cloudTs > 0) {
+          if (localTs > cloudTs) {
+            save(true);
+          } else if (cloudTs > localTs) {
+            applyCloudPayload(cloudPayload);
+            setSyncStatus('saved');
+          } else {
+            setSyncStatus('saved');
+          }
+          return;
+        }
+
+        // Если локальные данные уже имеют метку времени, а в облаке лежит старый слепок без метки — пушим локальные
+        if (localTs > 0 && cloudTs === 0) {
+          save(true);
+          return;
+        }
+
         let savedDecision = '';
         try { savedDecision = readRaw('ep_sync_decision_' + userId) || ''; } catch (e) {}
 
         if (savedDecision === 'local') {
           save(true);
-          setSyncStatus('saved');
           return;
         }
         if (savedDecision === 'cloud') {
           applyCloudPayload(cloudPayload);
-          setSyncStatus('saved');
+          // Сразу записываем метку времени в облако, чтобы следующие изменения шли по таймстемпам
+          save(true);
           return;
         }
 
-        // 4. Первый вход — спросить
+        // 4. Первый вход без меток времени — спрашиваем пользователя
         showSyncConflict(cloudPayload, localPayload, userId);
-        setSyncStatus('offline'); // временно, пока не выбрано
+        setSyncStatus('offline');
       } catch (err) {
         console.error('критическая ошибка разбора данных облака:', err);
         setSyncStatus('error');
@@ -2346,6 +2780,8 @@
     // ---------- Константы ----------
     const $ = id => document.getElementById(id);
     const pad = n => String(n).padStart(2, '0');
+    const IS_ANDROID = /Android/i.test(navigator.userAgent || '') ||
+      Boolean(navigator.userAgentData && /Android/i.test(navigator.userAgentData.platform || ''));
     const DEFAULT_TITLE = document.title;
     const DATA_VERSION = 2;
     const DATA_SIGNATURE = 'STUDYFLOW_BACKUP_V1_LIQUID_GLASS';
@@ -2478,7 +2914,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
     // ---------- Состояние ----------
      let state = {
-        theme: 'dark', liquid: true, start: 'overview',
+        theme: 'dark', liquid: !IS_ANDROID, start: 'overview',
         aiDisabled: false, aiCooldownUntil: 0,
         schoolStart: '08:00', schoolEnd: '13:15',
        work: 25, rest: 5, curDay: Math.min(5, Math.max(1, new Date().getDay() || 1)), filter: 'all', period: 'day',
@@ -2586,8 +3022,9 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     // «20 окт» — короткая дата рядом с относительной подписью.
     function shortDate(due) {
       if (!due || !isValidDate(due)) return '';
-      const [, m, d] = due.split('-');
-      return `${Number(d)} ${MONTHS_SHORT[Number(m) - 1]}`;
+      const [y, m, d] = due.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      return dt.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
      function fmtMin(m) { return m >= 60 ? `${Math.floor(m / 60)}ч ${m % 60}мин` : `${m} мин`; }
@@ -2922,10 +3359,15 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
      let cloudSyncTimer = null;
      let cloudSyncGeneration = 0;
      let cloudSyncPromise = Promise.resolve();
-     function buildStoragePayload() {
+     function buildStoragePayload(updatedAt) {
+       // На Android не перезаписываем облачный ep_liquid (оставляем то, что пришло с ПК/iPhone, либо 'true'),
+       // а локальное состояние стекла для Android храним отдельно в ep_liquid_android.
+       const cloudLiquid = IS_ANDROID
+         ? (readRaw('ep_liquid') !== null ? readRaw('ep_liquid') : 'true')
+         : String(state.liquid);
        return {
          ep_theme: state.theme,
-         ep_liquid: String(state.liquid),
+         ep_liquid: cloudLiquid,
          ep_start: state.start,
          ep_period: state.period,
          ep_work: String(state.work),
@@ -2934,20 +3376,28 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
          ep_notif: String(state.notif),
          ep_welcomescreen: String(state.welcomeShown),
          ep_autoarchive: String(state.autoArchive),
-          ep_ai_disabled: String(state.aiDisabled),
-          ep_sched_saved: String(state.schedSaved),
-          ep_school_start: state.schoolStart,
+         ep_ai_disabled: String(state.aiDisabled),
+         ep_sched_saved: String(state.schedSaved),
+         ep_school_start: state.schoolStart,
          ep_school_end: state.schoolEnd,
          ep_focus: JSON.stringify(state.focus),
          ep_sched: JSON.stringify(state.schedule),
          ep_tasks: JSON.stringify(state.tasks),
-         ep_archive: JSON.stringify(state.archive)
+         ep_archive: JSON.stringify(state.archive),
+         ep_updated_at: String(updatedAt || readRaw('ep_updated_at') || Date.now())
        };
      }
 
      function save(syncCloud = true) {
        if (resetting) return true;
-       const data = buildStoragePayload();
+       const nowTs = syncCloud ? Date.now() : (Number(readRaw('ep_updated_at')) || Date.now());
+       const data = buildStoragePayload(nowTs);
+       if (IS_ANDROID) {
+         writeRaw('ep_liquid_android', String(state.liquid));
+       }
+       if (syncCloud) {
+         writeRaw('ep_sync_dirty', '1');
+       }
 
        let ok = true;
        for (const k of Object.keys(data)) {
@@ -2961,51 +3411,75 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
        if (syncCloud && sbClient) {
          clearTimeout(cloudSyncTimer);
          cloudSyncTimer = setTimeout(async () => {
+           cloudSyncTimer = null;
            const generation = cloudSyncGeneration;
            cloudSyncPromise = cloudSyncPromise.then(async () => {
-              if (resetting || generation !== cloudSyncGeneration) return;
-              const latestData = buildStoragePayload();
-              setSyncStatus('syncing');
-              try {
-                const { data: authData, error: authError } = await sbClient.auth.getUser();
-                if (authError) throw authError;
-                const user = authData?.user;
-                if (!user) {
-                  setSyncStatus('offline');
-                  return;
-                }
-                const { error: saveError } = await sbClient
-                  .from('user_data')
-                  .upsert(
-                    {
-                      user_id: user.id,
-                      payload: latestData,
-                      updated_at: new Date().toISOString()
-                    },
-                    {
-                      onConflict: 'user_id'
-                    }
-                  );
-                if (saveError) throw saveError;
-                console.log('данные синхронизированы с облаком Supabase');
-                setSyncStatus('saved');
+             if (resetting || generation !== cloudSyncGeneration) return;
+             const latestData = buildStoragePayload(readRaw('ep_updated_at') || Date.now());
+             setSyncStatus('syncing');
+             try {
+               const { data: sessionData } = await sbClient.auth.getSession().catch(() => ({ data: {} }));
+               let user = sessionData?.session?.user || null;
+               if (!user) {
+                 const { data: authData, error: authError } = await sbClient.auth.getUser();
+                 if (authError) throw authError;
+                 user = authData?.user || null;
+               }
+               if (!user) {
+                 setSyncStatus('offline');
+                 return;
+               }
+
+               // Проверяем наличие записи без колонки id и без updated_at (только гарантированные user_id и payload)
+               const { data: existingRows, error: lookupError } = await sbClient
+                 .from('user_data')
+                 .select('user_id')
+                 .eq('user_id', user.id)
+                 .limit(1);
+               if (lookupError) throw lookupError;
+               if (resetting || generation !== cloudSyncGeneration) return;
+
+               if (Array.isArray(existingRows) && existingRows.length > 0) {
+                 const { error: updateError } = await sbClient
+                   .from('user_data')
+                   .update({ payload: latestData })
+                   .eq('user_id', user.id);
+
+                 if (updateError) {
+                   // Резервный путь, если RLS-политика разрешает только DELETE + INSERT
+                   await sbClient.from('user_data').delete().eq('user_id', user.id);
+                   const { error: reinsertError } = await sbClient
+                     .from('user_data')
+                     .insert([{ user_id: user.id, payload: latestData }]);
+                   if (reinsertError) throw reinsertError;
+                 }
+               } else {
+                 const { error: insertError } = await sbClient
+                   .from('user_data')
+                   .insert([{ user_id: user.id, payload: latestData }]);
+                 if (insertError) throw insertError;
+               }
+
+               removeRaw('ep_sync_dirty');
+               console.log('данные синхронизированы с облаком Supabase');
+               setSyncStatus('saved');
              } catch (err) {
                console.error('ошибка облачной синхронизации:', err);
-               const { data: authData } = await sbClient.auth.getUser().catch(() => ({ data: {} }));
-               if (!authData?.user) {
+               const { data: sessionData } = await sbClient.auth.getSession().catch(() => ({ data: {} }));
+               if (!sessionData?.session?.user) {
                  setSyncStatus('offline');
                } else {
                  setSyncStatus('error');
                }
              }
-          });
-        }, 350);
-      } else if (syncCloud) {
-        setSyncStatus('offline');
-      }
+           });
+         }, 350);
+       } else if (syncCloud) {
+         setSyncStatus('offline');
+       }
 
-      return ok;
-    }
+       return ok;
+     }
 
     // ---------- Нормализация данных ----------
     function parseLessons(raw) {
@@ -3098,7 +3572,6 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       let detectedDay = '';
       let detectedDue = '';
       let detectedComp = '';
-      let detectedPrio = '';
       const changes = [];
 
       // Stage 1: rank exact and typo-tolerant subject candidates by context.
@@ -3185,6 +3658,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         const date = new Date(year, month - 1, day);
         if (date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day) {
           if (!numericDateMatch[3] && getLocalToday(date) < getLocalToday(now)) date.setFullYear(year + 1);
+          // Воскресенье → понедельник
+          if (date.getDay() === 0) date.setDate(date.getDate() + 1);
           detectedDue = getLocalToday(date);
           remaining = remaining.replace(numericDateMatch[0], ' ');
         }
@@ -3193,10 +3668,12 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         if (phrase.includes('послезавтра')) {
           const date = new Date(now);
           date.setDate(date.getDate() + 2);
+          if (date.getDay() === 0) date.setDate(date.getDate() + 1);
           detectedDue = getLocalToday(date);
         } else if (phrase.includes('завтра')) {
           const date = new Date(now);
           date.setDate(date.getDate() + 1);
+          if (date.getDay() === 0) date.setDate(date.getDate() + 1);
           detectedDue = getLocalToday(date);
         } else if (phrase.includes('сегодня')) {
           detectedDue = getLocalToday(now);
@@ -3211,6 +3688,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
             const currentDay = now.getDay() || 7;
             const date = new Date(now);
             date.setDate(date.getDate() + ((dayNumber - currentDay + 7) % 7 || 7));
+            // Воскресенье → понедельник
+            if (date.getDay() === 0) date.setDate(date.getDate() + 1);
             detectedDue = getLocalToday(date);
             if (dayNumber <= 5) detectedDay = String(dayNumber);
           }
@@ -3260,7 +3739,6 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         else tier = 1;
       }
       if (tier >= 0) detectedComp = tiers[tier];
-      if (/(срочно|быстро|долг|горит|важно)/iu.test(remaining)) detectedPrio = 'urgent';
 
       // Stage 4: normalize the concise action text without removing action verbs.
       const cleaned = cleanTaskText(remaining);
@@ -3314,8 +3792,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         $('addDue').value = tomorrowStr();
         delete $('addDue').dataset.parserAuto;
       }
-      if (!$('addComp').dataset.userLocked) setSegValue('addComp', detectedComp || 'normal_comp');
-      if (!$('addPrio').dataset.userLocked) setSegValue('addPrio', detectedPrio || 'important');
+      if (!$('addComp').dataset.userLocked) $('addComp').value = detectedComp || 'normal_comp';
 
       const hintEl = $('smartParseHint');
       if (changes.length || detectedComp) {
@@ -3340,8 +3817,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
        delete $('addSubj').dataset.userLocked;
        delete $('addDay').dataset.userLocked;
        delete $('addDue').dataset.userLocked;
-       delete $('addComp').dataset.userLocked;
-       delete $('addPrio').dataset.userLocked;
+        delete $('addComp').dataset.userLocked;
        const input = $('addText');
        input.value = text;
        input.value = parseTaskNaturalInput(text, { commit: true });
@@ -3434,7 +3910,13 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     // ---------- Загрузка ----------
     function load() {
       const th = readRaw('ep_theme'); if (VALID_THEMES.includes(th)) state.theme = th;
-      const lq = readRaw('ep_liquid'); if (lq !== null) state.liquid = lq === 'true';
+      if (IS_ANDROID) {
+        const lqAndroid = readRaw('ep_liquid_android');
+        state.liquid = lqAndroid !== null ? lqAndroid === 'true' : false;
+      } else {
+        const lq = readRaw('ep_liquid');
+        state.liquid = lq !== null ? lq === 'true' : true;
+      }
       const st = readRaw('ep_start'); if (VALID_TABS.includes(st)) state.start = st;
       const pr = readRaw('ep_period'); if (VALID_PERIODS.includes(pr)) state.period = pr;
       state.work = clamp(toInt(readRaw('ep_work'), 25), 1, 180);
@@ -3681,9 +4163,6 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
           <div class="stat-label" style="color:${c.color};">${c.label}</div>
           <div class="stat-val" style="color:${c.color};">${esc(c.val)}</div>
         </div>`).join('');
-      $('periodHint').textContent = (done || focusMs)
-        ? `${PERIOD_LABEL[state.period]}: выполнено ${done}, фокуса ${fmtMs(focusMs)}`
-        : `${PERIOD_LABEL[state.period]}: пока ничего не отмечено`;
     }
 
     // ---------- Обзор ----------
@@ -3702,13 +4181,19 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
       const row = $('weekPills');
       row.innerHTML = '';
+      let visibleDays = 0;
+
       for (let d = 1; d <= 5; d++) {
         const cnt = state.tasks.filter(t => t.day === String(d)).length;
+        // Показываем дни с задачами ЛИБО текущий выбранный день, чтобы навигация не исчезала
+        if (cnt === 0 && d !== state.curDay) continue;
+        visibleDays++;
+
         const div = document.createElement('div');
         div.className = 'day-pill' + (state.curDay === d ? ' active' : '');
         div.tabIndex = 0;
         div.setAttribute('role', 'button');
-        div.innerHTML = `<div style="font-weight:800;font-size:13px;">${SHORT_DAYS[d]}</div><div style="font-size:11px;opacity:0.8;">${cnt} зад.</div>`;
+        div.innerHTML = `<div style="font-weight:800;font-size:13px;">${SHORT_DAYS[d]}</div><div style="font-size:11px;opacity:0.8;">${cnt ? cnt + ' зад.' : 'пусто'}</div>`;
         const select = () => { state.curDay = d; renderOverview(); };
         div.onclick = select;
         div.addEventListener('keydown', e => {
@@ -3717,11 +4202,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         row.appendChild(div);
       }
 
+      if (visibleDays === 0) {
+        row.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 0;">нет задач на учебные дни</div>';
+      }
+
       $('curDayTitle').textContent = DAYS[state.curDay];
-      const lessons = state.schedule[state.curDay] || [];
-      $('curDayLessons').innerHTML = lessons.length
-        ? `уроки: <b>${esc(lessons.join(', '))}</b>`
-        : `<i>уроков нет (свободный день)</i>`;
 
       const dTasks = state.tasks.filter(t => t.day === String(state.curDay));
       $('curDayTasks').innerHTML = dTasks.length
@@ -3793,6 +4278,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     // AI-приоритизация: нейросеть оценивает срочность и важность
     async function aiPrioritizeTasks() {
       if (!state.tasks.length) { showToast('список задач пуст', 'i'); return; }
+      if (aiTaskActionPending) return;
       if (!sbClient || !navigator.onLine) {
         showToast('AI недоступен офлайн', '!');
         return;
@@ -3801,6 +4287,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         showAiRateLimitWarning();
         return;
       }
+      aiTaskActionPending = true;
       try {
         recordAiRequest();
         const result = await sbClient.functions.invoke('ai-coach', {
@@ -3836,12 +4323,15 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
             aiPrioritizeTasks();
           }
         });
+      } finally {
+        aiTaskActionPending = false;
       }
     }
 
     // AI-автопланировщик: распределение задач по дням недели
     async function aiAutoScheduleTasks() {
       if (!state.tasks.length) { showToast('список задач пуст', 'i'); return; }
+      if (aiTaskActionPending) return;
       if (!sbClient || !navigator.onLine) {
         showToast('AI недоступен офлайн', '!');
         return;
@@ -3850,6 +4340,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         showAiRateLimitWarning();
         return;
       }
+      aiTaskActionPending = true;
       try {
         recordAiRequest();
         const result = await sbClient.functions.invoke('ai-coach', {
@@ -3890,13 +4381,22 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
             aiAutoScheduleTasks();
           }
         });
+      } finally {
+        aiTaskActionPending = false;
       }
     }
 
     function setPeriod(kind, btn) {
       if (!VALID_PERIODS.includes(kind)) return;
       state.period = kind;
-      setGroupActive([...document.querySelectorAll('#periodChips .chip')], btn);
+      const reviewTitle = $('aiDayReviewTitle');
+      if (reviewTitle) {
+        reviewTitle.textContent = kind === 'week' ? 'AI-итог недели' : 'AI-итог дня';
+      }
+      const cached = safeSessionGet(makeReviewCacheKey());
+      if (cached && $('aiDayReviewText')) {
+        $('aiDayReviewText').textContent = cached;
+      }
       save();
       renderPeriodStats();
     }
@@ -4029,14 +4529,16 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     // ---------- Добавление ----------
     function tomorrowStr() {
       const d = new Date(); d.setDate(d.getDate() + 1);
+      // В воскресенье школьники не учатся — переносим на понедельник
+      const day = d.getDay();
+      if (day === 0) d.setDate(d.getDate() + 1); // +1 день → понедельник
       return getLocalToday(d);
     }
     function prepareAddForm() {
       delete $('addSubj').dataset.userLocked;
       delete $('addDay').dataset.userLocked;
       delete $('addDue').dataset.userLocked;
-      delete $('addComp').dataset.userLocked;
-      delete $('addPrio').dataset.userLocked;
+       delete $('addComp').dataset.userLocked;
       setDisplay('smartParseHint', false);
       const due = $('addDue');
       due.min = getLocalToday();
@@ -4044,7 +4546,12 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     }
 
     let batchAiPending = false;
+    let aiTaskActionPending = false;
     function openBatchAiModal() {
+      if (!isAuthenticated) {
+        showAiRateLimitWarning();
+        return;
+      }
       if (state.aiDisabled || batchAiPending) return;
       $('batchAiText').value = '';
       showModal($('batchAiModal'), $('batchAiText'));
@@ -4063,6 +4570,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       if (state.aiDisabled || aiUnreachable || batchAiPending) return;
       const rawText = $('batchAiText').value.trim();
       if (!rawText) { showToast('вставьте текст с заданиями', '!'); return; }
+      if (rawText.length < 5) { showToast('текст слишком короткий для поиска заданий', '!'); return; }
       if (!sbClient || !navigator.onLine) { showToast('AI-разбор недоступен офлайн', '!'); return; }
       const submit = $('batchAiSubmit');
       const originalLabel = 'найти задания ✨';
@@ -4146,6 +4654,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       }
       const text = parseTaskNaturalInput($('addText').value, { commit: true });
       if (!text) { showToast('введите текст задания', '!'); return; }
+      if (!/[\p{L}\p{N}]/u.test(text) || text.length < 2) {
+        showToast('введите осмысленный текст задания (минимум 2 символа)', '!');
+        return;
+      }
       const day = $('addDay').value;
       if (!isDayEnabled(day)) { showToast('выберите день недели', '!'); return; }
       const subj = resolveSubj($('addSubj'), $('addSubjOther'));
@@ -4174,7 +4686,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       }
       const task = normalizeTask({
         id: newId(), day, subj, text, due: validDue,
-        prio: activeSeg('addPrio'), comp: activeSeg('addComp'),
+        prio: 'important', comp: $('addComp').value,
         repeat: $('addRepeat').checked ? 'weekly' : null
       });
       if (!task) { showToast('не удалось сохранить задание', '!'); return; }
@@ -4182,19 +4694,18 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       state.tasks.push(task);
       save();
       $('addText').value = '';
+      $('addText').style.height = 'auto';
       delete $('addText').dataset.parserCleaned;
       $('addRepeat').checked = false;
       setDisplay('smartParseHint', false);
       $('addSubjOther').value = '';
-      setSegValue('addPrio', 'important');
-      setSegValue('addComp', 'normal_comp');
+      $('addComp').value = 'normal_comp';
       renderAll();
       showToast('задание добавлено в план');
       // Сбросить замки ручного выбора
       delete $('addSubj').dataset.userLocked;
       delete $('addDay').dataset.userLocked;
       delete $('addDue').dataset.userLocked;
-      delete $('addPrio').dataset.userLocked;
       delete $('addComp').dataset.userLocked;
       tab('tasks', navBtn('tasks'));
     }
@@ -4296,24 +4807,32 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     }
 
     function buildTaskCardHtml(t, index, isActive) {
-      const left = daysLeftLabel(t.due);
-      const sd = esc(shortDate(t.due));
-      const daysWeekShort = ['', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
-      let dueDayOfWeek = '';
-      if (t.due && isValidDate(t.due)) {
-        const dt = new Date(t.due + 'T00:00:00');
-        dueDayOfWeek = daysWeekShort[dt.getDay() || 7];
-      }
-      const datePrefix = sd ? (dueDayOfWeek ? `${sd} (${dueDayOfWeek})` : sd) : '';
-      const dBadge = !t.due
-        ? '<span class="badge badge-neutral">без срока</span>'
-        : isOverdue(t) ? `<span class="badge badge-danger">${datePrefix ? datePrefix + ' · ' : ''}${esc(left)}</span>`
-        : left === 'сегодня' ? `<span class="badge badge-warning">сегодня (${dueDayOfWeek})</span>`
-        : left === 'завтра' ? `<span class="badge badge-warning">завтра (${dueDayOfWeek})</span>`
-        : left === 'послезавтра' ? `<span class="badge badge-warning">послезавтра (${dueDayOfWeek})</span>`
-        : `<span class="badge badge-info">${datePrefix} · ${esc(left)}</span>`;
       const id = esc(t.id);
       const isDecomposing = decomposingTaskIds.has(t.id);
+      const subjEsc = esc(t.subj);
+      const compT = COMP[t.comp]?.t || 25;
+      const prioB = PRIO[t.prio] || PRIO.important;
+
+      // Мета-строка: объединённая, серая, через точки
+      let metaParts = [];
+      if (t.due && isValidDate(t.due)) {
+        const [, m, d] = t.due.split('-').map(Number);
+        const dt = new Date(t.due + 'T00:00:00');
+        const dayOfWeek = dt.toLocaleDateString('ru-RU', { weekday: 'short' });
+        const daysLeft = daysLeftLabel(t.due);
+        if (daysLeft === 'сегодня') metaParts.push(dayOfWeek + ' (сегодня)');
+        else if (daysLeft === 'завтра') metaParts.push(dayOfWeek + ' (завтра)');
+        else if (daysLeft === 'послезавтра') metaParts.push(dayOfWeek + ' (послезавтра)');
+        else metaParts.push(dayOfWeek + ' · ' + daysLeft);
+      }
+      metaParts.push(compT + ' мин фокуса');
+      if (t.repeat === 'weekly') metaParts.push('🔄 еженедельно');
+      const metaHtml = metaParts.length ? '<div class="task-meta">' + metaParts.join('<span class="meta-sep">·</span>') + '</div>' : '';
+
+      // Индикатор срочности (красная точка)
+      const urgentDot = (t.prio === 'urgent' || t.prio === 'critical')
+        ? '<span class="task-urgent-dot" title="срочно"></span>'
+        : '';
 
       // Подзадачи
       const subtasksHtml = !state.aiDisabled && Array.isArray(t.subtasks) && t.subtasks.length
@@ -4324,38 +4843,48 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
           ).join('') + '</div>'
         : '';
 
-      // Кнопка «шаги» с индикатором
+      // Кнопка «шаги»
       const decomposeButton = state.aiDisabled
         ? ''
-        : '<button class="btn-act" data-act="decompose" data-id="' + id + '" title="Разбить на шаги"' + (isDecomposing ? ' disabled aria-busy="true"' : '') + '>' +
+        : '<button class="btn-decompose" data-act="decompose" data-id="' + id + '" title="Разбить на шаги"' + (isDecomposing ? ' disabled aria-busy="true"' : '') + '>' +
           (isDecomposing ? '<span class="ai-inline-spinner" aria-hidden="true"></span>шаги' : '✨ шаги') +
           (t.subtasksSource === 'ai' ? '<span class="ai-dot ai-dot-ai" title="создано AI"></span>' :
            t.subtasksSource === 'local' ? '<span class="ai-dot ai-dot-local" title="локальный чеклист"></span>' : '') +
           '</button>';
 
-      // Карточка — собираем в правильном порядке, без indexOf/slice
+      // Статус "в фокусе"
+      const activeBadge = isActive
+        ? '<span class="task-subj-badge" style="background:rgba(142,97,255,0.2);color:var(--accent);">в фокусе</span>'
+        : '';
+
+      // Чекбокс (проверен для выполненных задач — таких здесь нет, но на всякий случай)
+      const checkedClass = '';
+
       return `
         <div class="glass task-card ${PRIO[t.prio].c}"${isActive ? ' data-active="1"' : ''}>
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-            <span class="badge badge-prio">${esc(t.subj)}</span>
-            <span style="display:flex;gap:6px;align-items:center;">
-              ${isActive ? '<span class="badge" style="background:rgba(142,97,255,0.25);color:var(--accent);">в фокусе</span>' : ''}
-              <span class="badge ${PRIO[t.prio].b}">${PRIO[t.prio].text}</span>
-            </span>
+          <div class="task-top">
+            <div class="task-check ${checkedClass}" data-act="done" data-id="${id}" title="выполнить" aria-label="выполнить"></div>
+            <div class="task-top-body">
+              <div class="task-subj-prio">
+                <span class="task-subj-badge">${subjEsc}</span>
+                ${urgentDot}
+                ${activeBadge}
+              </div>
+              <div class="task-text">${esc(t.text)}</div>
+            </div>
           </div>
-          <div style="font-size:15px;font-weight:700;line-height:1.3;white-space:pre-wrap;">${esc(t.text)}</div>
           ${subtasksHtml}
-          <div class="task-meta">
-            ${dBadge}
-            <span title="${esc(COMP[t.comp].hint)}">${COMP[t.comp].text}</span>
-            ${t.repeat === 'weekly' ? '<span class="badge badge-info" title="повторяется каждую неделю">🔄 еженедельно</span>' : ''}
-          </div>
+          ${metaHtml}
           <div class="task-actions">
             ${decomposeButton}
-            <button class="btn-act btn-success" data-act="done" data-id="${id}" title="выполнить" aria-label="выполнить">готово</button>
-            <button class="btn-act btn-go" data-act="focus" data-id="${id}">таймер</button>
-            <button class="btn-act" data-act="edit" data-id="${id}" title="редактировать" aria-label="редактировать">редактировать</button>
-            <button class="btn-act btn-danger" data-act="del" data-id="${id}" title="удалить" aria-label="удалить">удалить</button>
+            <button class="btn-start" data-act="focus" data-id="${id}">▶ запустить</button>
+            <div class="task-more-menu">
+              <button class="task-more-btn" data-act="more" data-id="${id}" title="дополнительно">•••</button>
+              <div class="task-more-dropdown" id="moreDropdown-${id}">
+                <button data-act="edit" data-id="${id}">✏️ редактировать</button>
+                <button class="danger" data-act="del" data-id="${id}">🗑 удалить</button>
+              </div>
+            </div>
           </div>
         </div>`;
     }
@@ -4409,16 +4938,13 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         const card = buildTaskCardHtml(t, index, isActive);
         const nextComp = list[index + 1]?.comp || t.comp || 'medium';
         const breakMins = getBreakDurationMinutes(nextComp);
-        const breakCard = index < list.length - 1 && index % 2 === 0
-          ? `<div class="break-card">
-              <div style="min-width:0;">
-                <span class="badge" style="background:rgba(6,214,160,0.16);color:var(--success);font-weight:800;">перерыв и разминка</span>
-                <span style="font-size:12px;color:var(--muted);margin-left:6px;">глаза, шея и спина (${breakMins} мин)</span>
-              </div>
-              <button class="btn-act btn-success" onclick="startStandaloneBreak('${nextComp}')">размяться</button>
+        const breakDivider = index < list.length - 1 && index % 2 === 0
+          ? `<div class="break-divider">
+              <span>☕ перерыв ${breakMins} мин</span>
+              <button class="btn-break" onclick="startStandaloneBreak('${nextComp}')">размяться</button>
             </div>`
           : '';
-        return card + breakCard;
+        return card + breakDivider;
       }).join('');
     }
 
@@ -4496,19 +5022,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       $('editDay').value = t.day;
       fillSubjects($('editSubj'), $('editSubjOther'), t.day, t.subj);
       $('editText').value = t.text;
+      $('editText').style.height = 'auto';
+      $('editText').style.height = $('editText').scrollHeight + 'px';
       $('editDue').value = t.due;
       $('editRepeat').checked = t.repeat === 'weekly';
-      // Кнопки critical в форме нет, поэтому запоминаем статус отдельно:
-      // иначе при сохранении он молча превратится в «срочно».
-      const editPrioGroup = $('editPrio');
-      if (t.prio === 'critical') {
-        editPrioGroup.dataset.keepCritical = '1';
-        setGroupActive([...editPrioGroup.querySelectorAll('.seg-btn')], null);
-      } else {
-        delete editPrioGroup.dataset.keepCritical;
-        setSegValue('editPrio', t.prio);
-      }
-      setSegValue('editComp', t.comp);
+      $('editComp').value = t.comp;
       showModal($('editModal'), $('editText'));
     }
     function closeEditModal() {
@@ -4525,6 +5043,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       if (!subj) { showToast('укажите предмет', '!'); return; }
       const text = $('editText').value.trim();
       if (!text) { showToast('текст задания не может быть пустым', '!'); return; }
+      if (!/[\p{L}\p{N}]/u.test(text) || text.length < 2) {
+        showToast('введите осмысленный текст задания (минимум 2 символа)', '!');
+        return;
+      }
       const rawDue = ($('editDue').value || '').trim();
       let validDue = '';
       if (rawDue) {
@@ -4547,12 +5069,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
           return;
         }
       }
-      const comp = activeSeg('editComp');
-      // Приоритет был выставлен автоматом: если пользователь сдвинул срок или
-      // изменил сложность, статус нужно пересчитать, а не тащить прежний.
-      const prio = $('editPrio').dataset.keepCritical === '1'
-        ? scoreToPrio(urgencyScore({ due: validDue, comp }))
-        : activeSeg('editPrio');
+      const comp = $('editComp').value;
+      const prio = state.tasks[idx].prio;
       const fixed = normalizeTask({
         id: state.tasks[idx].id, day, subj, text, due: validDue, prio, comp,
         repeat: $('editRepeat').checked ? 'weekly' : null,
@@ -4578,18 +5096,55 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         box.innerHTML = '<div class="glass" style="text-align:center;padding:30px;color:var(--muted);"><div style="font-weight:800;font-size:15px;color:var(--text);">архив пуст</div><div>закрытые задания появятся здесь</div></div>';
         return;
       }
-      box.innerHTML = state.archive.map(a => {
-        const isOverdueArchive = a.closedReason === 'overdue';
+
+      const groups = {};
+      const today = getLocalToday();
+
+      state.archive.forEach(a => {
+        const key = (a.closedAt && isValidDate(a.closedAt)) ? a.closedAt : 'no_date';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(a);
+      });
+
+      const sortedDates = Object.keys(groups).sort((a, b) => {
+        if (a === 'no_date') return 1;
+        if (b === 'no_date') return -1;
+        return b.localeCompare(a);
+      });
+
+      box.innerHTML = sortedDates.map(dateStr => {
+        const items = groups[dateStr];
+        const label = getArchiveDateLabel(dateStr, today);
+        const rowsHtml = items.map(a => {
+          const isOverdueArchive = a.closedReason === 'overdue';
+          return `
+            <div class="archive-row${isOverdueArchive ? ' archive-overdue' : ''}">
+              <div class="archive-check"></div>
+              <span class="archive-subj">${esc(a.subj)}</span>
+              <span class="archive-text${isOverdueArchive ? '' : ' archive-done'}">${esc(a.text)}</span>
+              ${isOverdueArchive ? '<span class="archive-status-badge">просрочено</span>' : ''}
+            </div>`;
+        }).join('');
         return `
-        <div class="glass task-card ${isOverdueArchive ? '' : 'is-done'}">
-          <div style="display:flex;justify-content:space-between;gap:8px;">
-            <span class="badge badge-prio">${esc(a.subj)}</span>
-            <span class="badge ${isOverdueArchive ? 'badge-danger' : 'badge-done'}">${isOverdueArchive ? 'просрочено' : 'выполнено'}</span>
-          </div>
-          <div style="font-size:14px;${isOverdueArchive ? '' : 'text-decoration:line-through;'}opacity:0.8;white-space:pre-wrap;">${esc(a.text)}</div>
-          <div style="font-size:11px;color:var(--muted);">${isOverdueArchive ? 'срок' : 'закрыто'}: ${esc(isOverdueArchive ? (a.due || a.closedAt || '—') : (a.closedAt || '—'))}</div>
-        </div>`;
+          <div class="archive-group">
+            <div class="archive-group-title"><span>${esc(label)}</span><span style="opacity:0.5;">(${items.length})</span></div>
+            <div class="glass archive-group-card">${rowsHtml}</div>
+          </div>`;
       }).join('');
+    }
+
+    function getArchiveDateLabel(dateStr, today) {
+      if (!dateStr || dateStr === 'no_date' || !isValidDate(dateStr)) return 'ранее';
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const todayDt = new Date(today + 'T00:00:00');
+      const yesterdayDt = new Date(todayDt);
+      yesterdayDt.setDate(yesterdayDt.getDate() - 1);
+      const yesterdayStr = getLocalToday(yesterdayDt);
+
+      if (dateStr === today) return 'сегодня';
+      if (dateStr === yesterdayStr) return 'вчера';
+      return dt.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' });
     }
 
     function clearArchive() {
@@ -4643,7 +5198,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     }
 
     function isAiAvailable() {
-      return !state.aiDisabled
+      return isAuthenticated
+        && !state.aiDisabled
         && !aiUnreachable
         && navigator.onLine
         && Boolean(sbClient)
@@ -4658,6 +5214,13 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     }
 
     function showAiRateLimitWarning() {
+      if (!isAuthenticated) {
+        showToast('войдите в аккаунт в настройках, чтобы использовать AI-функции ✨', '🔒', 5500, {
+          label: 'войти',
+          run: () => openSettings()
+        });
+        return;
+      }
       if (state.aiDisabled) {
         showToast('AI-функции отключены в настройках', 'i');
         return;
@@ -4689,7 +5252,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       const now = Date.now();
       const upTo = Math.min(now, tState.endAt);
       const delta = upTo - tState.lastTs;
-      if (delta > 0 && tState.phase === 'work') addFocus(delta);
+      if (delta > 0 && tState.phase === 'work') addFocusRange(tState.lastTs, upTo);
       tState.lastTs = Math.max(tState.lastTs, upTo);
       tState.leftMs = Math.max(0, tState.endAt - now);
     }
@@ -4978,11 +5541,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
       if (tState.running) {
         syncTimer();
-        // сохраняем остаток упражнения при ручной паузе
-        if (tState.phase === 'break' && breakStepEndAt > 0) {
-          breakStepLeftMs = Math.max(0, breakStepEndAt - Date.now());
-          breakStepEndAt = 0;
-        }
+        tState.running = false;
         if (tState.phase === 'break' && breakStepPauseUntil > Date.now()) {
           tState.pausePrepLeft = breakStepPauseUntil - Date.now();
         } else {
@@ -5631,8 +6190,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
        $('aiDayReviewText').innerHTML = '<span class="ai-inline-spinner"></span>анализирую…';
 
         // Кэширование с учётом периода
-        const cacheKey = `ai_rev_${state.period}_${getLocalToday()}_${state.tasks.length}_${state.archive.length}`;
-        const cachedText = sessionStorage.getItem(cacheKey);
+        const cacheKey = makeReviewCacheKey();
+        const cachedText = safeSessionGet(cacheKey);
         if (cachedText) {
           $('aiDayReviewText').textContent = cachedText;
           if (indicator) {
@@ -5694,16 +6253,19 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
               body: { action: reviewAction, ...reviewBody },
               timeout: 60000
             });
-           if (state.aiDisabled || aiUnreachable) return;
-           if (result.error) throw result.error;
-           const text = result.data?.comment || result.data?.summary || result.data?.text || 'Пока нет данных для сводки.';
-           $('aiDayReviewText').textContent = text;
-            safeSessionSet(cacheKey, text);
-           if (indicator) {
-             indicator.className = 'ai-dot ai-dot-ai';
-             indicator.style.display = 'inline-block';
-             indicator.title = 'ответ AI';
-           }
+            if (state.aiDisabled || aiUnreachable) return;
+            if (result.error) throw result.error;
+            const isFallback = Boolean(result.data?.fallback);
+            const text = result.data?.comment || result.data?.summary || result.data?.text || 'Пока нет данных для сводки.';
+            $('aiDayReviewText').textContent = text;
+            if (!isFallback) {
+              safeSessionSet(cacheKey, text);
+            }
+            if (indicator) {
+              indicator.className = isFallback ? 'ai-dot ai-dot-local' : 'ai-dot ai-dot-ai';
+              indicator.style.display = 'inline-block';
+              indicator.title = isFallback ? 'локальная сводка' : 'ответ AI';
+            }
          } catch (err) {
           console.error('ошибка AI-сводки:', err);
           triggerAiCooldown(1);
@@ -5712,7 +6274,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
             label: 'повторить',
             run: () => {
               state.aiCooldownUntil = 0;
-              sessionStorage.removeItem(cacheKey);
+               safeSessionRemove(cacheKey);
               requestAIDayReview();
             }
           });
@@ -5920,7 +6482,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     }
     function updateAIFeatureVisibility() {
       document.body.classList.toggle('ai-disabled', state.aiDisabled);
-      document.body.classList.toggle('ai-unavailable', aiUnreachable);
+      const guestOrUnavailable = aiUnreachable || !isAuthenticated;
+      document.body.classList.toggle('ai-unavailable', guestOrUnavailable);
       const aiAvailable = isAiAvailable();
       const urgencyChip = $('urgencyPrioChip');
       if (urgencyChip) urgencyChip.style.display = aiAvailable ? 'none' : '';
@@ -5950,7 +6513,13 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     function toggleLiquid(en) {
       state.liquid = Boolean(en);
       applyAppearance();
-      save();
+      if (IS_ANDROID) {
+        writeRaw('ep_liquid_android', String(state.liquid));
+        // На Android не отправляем состояние стекла в облако, чтобы не выключать его на ПК и iPhone
+        save(false);
+      } else {
+        save(true);
+      }
       showToast(state.liquid ? 'liquid glass включен' : 'liquid glass выключен');
     }
     function changeStartPage(p) {
@@ -6036,10 +6605,6 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       setGroupActive(
         [...document.querySelectorAll('#filterChips .chip[data-f]')],
         document.querySelector('#filterChips .chip[data-f="all"]')
-      );
-      setGroupActive(
-        [...document.querySelectorAll('#periodChips .chip[data-p]')],
-        document.querySelector(`#periodChips .chip[data-p="${state.period}"]`)
       );
       applyAppearance();
       save();
@@ -6453,11 +7018,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
     let resetting = false;
     async function resetAll() {
-      if (!confirm('сбросить все данные? задания, расписание и архив будут удалены (включая копию в облаке)')) return;
+      if (!confirm('сбросить все данные? задания, расписание и архив будут удалены')) return;
       resetting = true;
       
-      // 1. Пытаемся удалить из облака (если залогинены)
-      if (sbClient) {
+      // 1. Пробуем снести данные в облаке (ТОЛЬКО если есть сеть, клиент и активный логин)
+      if (sbClient && navigator.onLine) {
         try {
           clearTimeout(cloudSyncTimer);
           cloudSyncTimer = null;
@@ -6465,50 +7030,26 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
           await cloudSyncPromise;
 
-          const { data, error: authError } = await sbClient.auth.getUser();
+          // getSession не кидает ошибку при отсутствии сессии у гостя
+          const { data: sessionData } = await sbClient.auth.getSession().catch(() => ({ data: {} }));
+          const user = sessionData?.session?.user;
 
-          if (authError) throw authError;
-
-          if (data?.user) {
-            const userId = data.user.id;
-
-            const { data: existing, error: lookupError } = await sbClient
+          if (user) {
+            const { error: deleteError } = await sbClient
               .from('user_data')
-              .select('id')
-              .eq('user_id', userId)
-              .maybeSingle();
+              .delete()
+              .eq('user_id', user.id);
 
-            if (lookupError) throw lookupError;
-
-            if (existing) {
-              const { data: deletedRows, error: deleteError } = await sbClient
-                .from('user_data')
-                .delete()
-                .eq('user_id', userId)
-                .select('id');
-
-              if (deleteError) throw deleteError;
-
-              if (!deletedRows || deletedRows.length === 0) {
-                throw new Error('supabase не подтвердил удаление облачной записи');
-              }
+            if (deleteError) {
+              console.warn('не удалось удалить копию из облака:', deleteError.message);
             }
           }
         } catch (err) {
-          resetting = false;
-
-          console.error('ошибка удаления облачных данных:', err);
-
-          showToast(
-            'не удалось удалить копию из облака. локальные данные не удалены',
-            '!'
-          );
-
-          return;
+          console.warn('ошибка при очистке облака, продолжаем локальный сброс:', err);
         }
       }
 
-      // 2. Очищаем локальное хранилище
+      // 2. Очищаем локальное хранилище (выполняется ВСЕГДА)
       try {
         const keys = [];
         for (let i = 0; i < localStorage.length; i++) {
@@ -6516,6 +7057,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
           if (k && k.startsWith('ep_')) keys.push(k);
         }
         keys.forEach(key => localStorage.removeItem(key));
+        try { sessionStorage.clear(); } catch (e) {}
       } catch (err) {
         resetting = false;
         console.error('ошибка сброса локальных данных:', err);
@@ -6561,7 +7103,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
            }
          }
        });
-      $('addText').addEventListener('input', e => parseTaskNaturalInput(e.target.value));
+      $('addText').addEventListener('input', e => {
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+        parseTaskNaturalInput(e.target.value);
+      });
       $('addText').addEventListener('blur', e => parseTaskNaturalInput(e.target.value, { commit: true }));
 
       // Защита ручного выбора: помечаем заблокированными при изменении
@@ -6577,8 +7123,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         $('addDue').dataset.userLocked = '1';
         delete $('addDue').dataset.parserAuto;
       });
-      document.querySelectorAll('#addPrio .seg-btn').forEach(b => b.addEventListener('click', () => { $('addPrio').dataset.userLocked = '1'; }));
-      document.querySelectorAll('#addComp .seg-btn').forEach(b => b.addEventListener('click', () => { $('addComp').dataset.userLocked = '1'; }));
+      $('addComp').addEventListener('change', () => { $('addComp').dataset.userLocked = '1'; });
       $('editDay').addEventListener('change', () => fillSubjects($('editSubj'), $('editSubjOther'), $('editDay').value));
       $('editSubj').addEventListener('change', () => toggleOther($('editSubj'), $('editSubjOther')));
 
@@ -6603,6 +7148,27 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         else if (b.dataset.act === 'done') completeTaskById(id);
         else if (b.dataset.act === 'edit') openEdit(id);
         else if (b.dataset.act === 'del') delTask(id);
+        else if (b.dataset.act === 'more') {
+          e.stopPropagation();
+          const card = b.closest('.task-card');
+          const dropdown = $('moreDropdown-' + id);
+          if (dropdown) {
+            const wasShown = dropdown.classList.contains('show');
+            // Закрываем все открытые меню и снимаем z-index
+            document.querySelectorAll('.task-more-dropdown.show').forEach(d => d.classList.remove('show'));
+            document.querySelectorAll('.task-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+            if (!wasShown) {
+              dropdown.classList.add('show');
+              if (card) card.classList.add('menu-open');
+            }
+          }
+        }
+      });
+
+      // Закрытие dropdown при клике вне
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.task-more-dropdown.show').forEach(d => d.classList.remove('show'));
+        document.querySelectorAll('.task-card.menu-open').forEach(c => c.classList.remove('menu-open'));
       });
 
       $('tasksList').addEventListener('change', e => {
@@ -6650,16 +7216,28 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
       }, { passive: true });
 
-      $('setSchoolStart').addEventListener('change', e => {
-        state.schoolStart = e.target.value || '08:00';
-        save();
-        showToast('время начала сохранено');
-      });
-      $('setSchoolEnd').addEventListener('change', e => {
-        state.schoolEnd = e.target.value || '13:15';
-        save();
-        showToast('время конца сохранено');
-      });
+       $('setSchoolStart').addEventListener('change', e => {
+         const val = e.target.value || '08:00';
+         if (val >= (state.schoolEnd || '13:15')) {
+           showToast('начало уроков должно быть раньше конца уроков', '!');
+           e.target.value = state.schoolStart || '08:00';
+           return;
+         }
+         state.schoolStart = val;
+         save();
+         showToast('время начала сохранено');
+       });
+       $('setSchoolEnd').addEventListener('change', e => {
+         const val = e.target.value || '13:15';
+         if (val <= (state.schoolStart || '08:00')) {
+           showToast('конец уроков должен быть позже начала уроков', '!');
+           e.target.value = state.schoolEnd || '13:15';
+           return;
+         }
+         state.schoolEnd = val;
+         save();
+         showToast('время конца сохранено');
+       });
     }
 
     // Перетаскивание свёрнутого окна: мышью и пальцем.
@@ -6934,8 +7512,6 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
       fillSubjects($('addSubj'), $('addSubjOther'), '');
       fillSubjects($('editSubj'), $('editSubjOther'), '');
-      setGroupActive([...document.querySelectorAll('#periodChips .chip')],
-        document.querySelector(`#periodChips .chip[data-p="${state.period}"]`));
       loadSchedDay();
 
       checkAutoArchive();
