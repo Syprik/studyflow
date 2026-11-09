@@ -7485,33 +7485,45 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     const TOUR_CONFIG = [
       {
         tab: 'overview',
-        getTarget: () => navBtn('overview'),
-        title: '📊 Обзор',
-        text: 'Пульс дня: открытые задачи, просроченные, прогресс и AI-итог.'
-      },
-      {
-        tab: 'add',
-        getTarget: () => $('addText'),
-        title: '✨ Умный ввод',
-        text: 'Пиши как другу: «завтра алгебра номер 45» — предмет, сложность и срок определятся сами.'
+        getTarget: () => $('view-overview').querySelector('.stats-grid') || navBtn('overview'),
+        title: '📊 Сводка дня',
+        text: 'Здесь виден пульс учёбы: сколько задач висит, сколько закрыто и запланированное время. Вверху — AI-итог дня.'
       },
       {
         tab: 'schedule',
         getTarget: () => document.querySelector('#view-schedule .glass[onclick*="importScheduleFileTop"]'),
-        title: '📅 Расписание',
-        text: 'Введи уроки вручную или импортируй файл из электронного дневника.'
+        title: '📅 График и дневник',
+        text: 'Забей уроки на неделю или закидь Excel-файл из электронного дневника — StudyFlow сам составит сетку расписания.'
+      },
+      {
+        tab: 'add',
+        getTarget: () => $('addText'),
+        title: '✨ Умный ввод без рутины',
+        text: 'Пиши свободно: «к пятнице алгебра упр 45» — предмет, сложность и дата сдачи определятся на лету. В воскресенье уроков нет, поэтому срок сам встанет на понедельник.'
       },
       {
         tab: 'tasks',
-        getTarget: () => document.querySelector('[data-act="focus"]') || $('tasksList'),
-        title: '🎯 Фокус-таймер',
-        text: 'Запусти таймер на задаче. AI разобьёт её на шаги и подберёт разминку после работы.'
+        getTarget: () => $('filterChips'),
+        title: '⚡ План и AI-сортировка',
+        text: 'Кнопки AI-приоритета и AI-плана недели автоматически сбалансируют твою нагрузку с учётом уроков и дедлайнов.'
+      },
+      {
+        tab: 'tasks',
+        getTarget: () => document.querySelector('.task-card') || $('tasksList'),
+        title: '🎯 Запуск и меню задач',
+        text: 'Кнопка «▶ запустить» стартует Pomodoro-таймер. По кнопке «•••» можно быстро отредактировать задание или удалить его.'
       },
       {
         tab: 'overview',
         getTarget: () => $('toast'),
-        title: '⚡ Dynamic Island',
-        text: 'Сверни таймер — он втянется в эту капсулу. Настройки и темы — в кнопке ≡ внизу.'
+        title: '🏝️ Dynamic Island',
+        text: 'Во время учёбы сверни таймер — он спрячется в эту верхнюю капсулу. Кликни по ней, чтобы поставить паузу или открыть таймер обратно.'
+      },
+      {
+        tab: 'overview',
+        getTarget: () => document.querySelector('.dock-settings-btn'),
+        title: '☁️ Синхронизация и темы',
+        text: 'Войди в аккаунт, чтобы открыть все AI-функции и синхронизировать план между телефоном и ПК, а также выбери одну из 5 тем оформления.'
       }
     ];
 
@@ -7527,10 +7539,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
       clearTimeout(tourStepTimer);
       tourStepTimer = setTimeout(() => {
-        const el = step.getTarget();
-        if (!el || el.getClientRects().length === 0) {
-          runTourStep(index + 1);
-          return;
+        let el = step.getTarget ? step.getTarget() : null;
+        if (!el || el.offsetParent === null) {
+          // Если целевой элемент внутри вкладки не найден, цепляемся за саму кнопку вкладки
+          el = navBtn(step.tab) || document.body;
         }
         const isLast = index === TOUR_CONFIG.length - 1;
         showTourTooltip(
@@ -7539,10 +7551,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
           step.title,
           index + 1,
           TOUR_CONFIG.length,
-          step.arrow,
+          'bottom',
           isLast ? null : () => runTourStep(index + 1)
         );
-      }, 220);
+      }, 260);
     }
 
     function startOnboardingTour(force = false) {
