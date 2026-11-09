@@ -1008,12 +1008,6 @@
     body.ai-unavailable [data-act="decompose"] {
       display: none !important;
     }
-    .task-actions {
-      display: flex; justify-content: flex-end; gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 2px; padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
     .task-actions .btn-act { flex: 0 0 auto; position: relative; }
     .ai-dot {
       display: inline-block;
@@ -1365,41 +1359,42 @@
     #timerView {
       height: 100dvh;
       box-sizing: border-box;
-      padding: 24px;
-      padding-top: 80px; /* Отступ для верхних кнопок */
+      padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
       overflow-y: auto;
       overflow-x: hidden;
       display: none;
       flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      gap: 16px;
     }
     #timerView.active { display: flex; }
 
-    /* Верхние кнопки свернуть / закрыть фиксируем по углам */
-    #timerTopControls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      right: 20px;
-      width: calc(100% - 40px);
-      max-width: none;
-      pointer-events: none;
-      margin: 0;
-    }
-    #timerTopControls button {
-      pointer-events: auto;
+    /* Верхняя панель со свёрткой и крестиком: ровно внутри паддингов экрана */
+    .timer-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      flex: 0 0 auto;
     }
 
-    /* Контейнер таймера (верхняя часть) */
     #timerContent {
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
+      margin: auto auto;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      text-align: center;
       flex: 0 0 auto;
+    }
+
+    .timer-compact-bar {
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto 12px;
     }
 
     .timer-circle {
@@ -1413,6 +1408,7 @@
     .timer-bottom-group {
       width: 100%;
       max-width: 440px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1422,11 +1418,10 @@
 
     /* Карточка разминки */
     #smartBreakCard {
-      flex: 0 0 auto;
-      height: auto;
-      overflow: hidden;
       width: 100%;
       max-width: 440px;
+      margin: 0 auto !important;
+      flex: 0 0 auto;
     }
 
     /* Кнопки */
@@ -1434,39 +1429,38 @@
       width: 100%;
       max-width: 440px;
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
       flex: 0 0 auto;
     }
 
-    /* Мобильный вид (до 600px или низкие экраны) */
+    /* В режиме отдыха: заголовок наверху, остальное прижато книзу */
+    #timerView.is-break {
+      justify-content: space-between !important;
+    }
+    #timerView.is-break #timerContent {
+      display: flex !important;
+      margin-top: 8px !important;
+      margin-bottom: 0 !important;
+      flex: 0 0 auto !important;
+    }
+    #timerView.is-break .timer-circle {
+      display: none !important;
+    }
+    #timerView.is-break #timerCompactBar {
+      display: block !important;
+    }
+    #timerView.is-break .timer-bottom-group {
+      margin-top: auto !important; /* Выталкивает весь нижний блок (таймер + карточку + кнопки) к низу */
+      margin-bottom: 0 !important;
+      gap: 10px;
+    }
+
     @media (max-width: 600px), (max-height: 760px) {
       #timerView {
-        justify-content: space-between;
         padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-        padding-top: 80px; /* Отступ сверху для кнопок */
-        gap: 0;
+        justify-content: space-between;
       }
-      #timerTopControls {
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        right: 16px;
-        width: calc(100% - 32px);
-      }
-      #timerView.is-break #timerContent {
-        justify-content: center;
-        flex: 1 1 auto !important;
-        margin: 0 !important;
-      }
-      #timerView.is-break .timer-circle {
-        display: none !important;
-      }
-      #timerView.is-break #timerCompactBar {
-        display: block !important;
+      .timer-header-bar {
         width: 100%;
-        margin: 12px auto 8px !important;
       }
     }
 
@@ -1524,11 +1518,21 @@
     #smartBreakCard {
       flex: 0 0 auto;
       height: auto;
+      max-height: 380px; /* Ограничиваем высоту карточки */
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
     #smartBreakCard:hover { transform: none !important; }
     #stepTimer { min-width: 48px; text-align: center; display: inline-flex; justify-content: center; }
-    #stepDesc { height: auto; max-height: 80px; overflow-y: auto; }
+    /* Текст шага разминки должен занимать всё доступное место и скроллиться */
+    #stepDesc { 
+      flex: 1 1 auto; 
+      min-height: 60px;
+      overflow-y: auto; 
+      margin-bottom: 8px;
+      padding-right: 4px;
+    }
     #smartBreakCard.is-loading {
       animation: breakCardPulse 1.2s ease-in-out infinite;
     }
@@ -1802,15 +1806,25 @@
       -webkit-user-select: auto;
     }
 
-    /* Увеличение элементов на больших экранах */
+    /* Увеличение элементов таймера на больших экранах (десктоп/планшет) */
     @media (min-width: 600px) {
-      .timer-circle { width: 280px; height: 280px; margin: 16px auto; }
+      .timer-circle { width: 280px; height: 280px; margin: 20px auto; }
       .timer-digits { font-size: 56px; }
       #timerSubj { font-size: 16px; margin-bottom: 8px; }
       #timerTitle { font-size: 24px; margin: 12px 0 24px 0; }
-      #timerControls { max-width: 500px; }
-      #timerMainBtns button { padding: 16px; font-size: 16px; }
-      #smartBreakCard { max-width: 500px; }
+      
+      /* Увеличиваем кнопки управления и карточку разминки */
+      #timerControls, .timer-bottom-group, #smartBreakCard {
+        max-width: 500px;
+      }
+      #timerMainBtns button { 
+        padding: 16px; 
+        font-size: 16px; 
+      }
+      .btn-act#btnSkipBreak {
+        font-size: 13px;
+        padding: 10px;
+      }
     }
   </style>
 </head>
@@ -1956,11 +1970,11 @@
             <textarea id="addText" class="input" rows="3" maxlength="500" placeholder="параграф, номера упражнений..." required></textarea>
             <div id="smartParseHint" style="font-size: 11.5px; color: var(--accent); margin-top: 4px; display: none; transition: opacity 0.35s ease;"></div>
           </div>
-          <details class="glass-card" style="margin-top:12px;padding:12px;">
+          <details class="glass-card" id="addDetailsBox" style="margin-top:12px;padding:12px;">
             <summary style="cursor:pointer;font-weight:700;font-size:12px;color:var(--muted);">точные параметры</summary>
             <div class="form-group" style="margin-top:12px;">
               <label class="label" for="addDay">учебный день:</label>
-              <select id="addDay" class="input" required>
+              <select id="addDay" class="input">
                 <option value="">выберите день недели...</option>
                 <option value="1">понедельник</option>
                 <option value="2">вторник</option>
@@ -1971,7 +1985,7 @@
             </div>
             <div class="form-group">
               <label class="label" for="addSubj">предмет:</label>
-              <select id="addSubj" class="input" required disabled>
+              <select id="addSubj" class="input" disabled>
                 <option value="">сначала выберите день выше</option>
               </select>
               <input type="text" id="addSubjOther" class="input" maxlength="60" placeholder="название предмета или проекта" style="display:none; margin-top:8px;" aria-label="свой предмет">
@@ -2039,6 +2053,38 @@
       <button class="nav-btn" data-tab="archive" onclick="tab('archive', this)"><span>архив</span></button>
     </nav>
     <button class="dock-settings-btn" type="button" onclick="openSettings()" title="настройки" aria-label="настройки">≡</button>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: AI-функции требуют авторизации -->
+  <div class="modal-overlay" id="aiAuthModal">
+    <div class="glass modal-box" role="dialog" aria-modal="true" aria-labelledby="aiAuthTitle" style="max-width: 460px;">
+      <div class="modal-header">
+        <span id="aiAuthTitle" style="font-weight: 800; font-size: 16px;">✨ AI-функции</span>
+        <button class="icon-btn" onclick="hideModal($('aiAuthModal'))" aria-label="закрыть" style="width:30px;height:30px;">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 18px 22px 22px; text-align: center;">
+        <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
+        <p style="font-size: 14px; font-weight: 800; margin-bottom: 8px; line-height: 1.4;">
+          AI-функции доступны только зарегистрированным пользователям
+        </p>
+        <p style="font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 16px;">
+          Чтобы использовать AI-приоритизацию, автопланирование, разбор задач из чата и умные разминки — сначала войдите в аккаунт. Это бесплатно и нужно для подключения к нейросети.
+        </p>
+        <div style="background: var(--card-sub); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; text-align: left;">
+          <div style="font-size: 11.5px; font-weight: 800; color: var(--accent); margin-bottom: 6px;">Как войти:</div>
+          <ol style="font-size: 12px; color: var(--muted); line-height: 1.6; padding-left: 18px; margin: 0;">
+            <li>Нажмите кнопку <b>≡</b> (шестерёнка) внизу экрана</li>
+            <li>В разделе <b>«облачная синхронизация»</b> введите email и пароль</li>
+            <li>Нажмите <b>«войти»</b> или <b>«регистрация»</b></li>
+            <li>После входа AI-функции станут доступны</li>
+          </ol>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-act" style="flex:1;" onclick="hideModal($('aiAuthModal'))">позже</button>
+          <button class="btn-main" style="flex:2; padding: 12px;" onclick="hideModal($('aiAuthModal')); openSettings();">перейти в настройки</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- НАСТРОЙКИ -->
@@ -2282,16 +2328,17 @@
     </div>
 
     <!-- Верхние кнопки -->
-    <div class="timer-mini-hide" id="timerTopControls" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <div class="timer-mini-hide timer-header-bar">
       <button class="icon-btn" onclick="collapseTimer()" aria-label="свернуть таймер" title="свернуть">—</button>
       <button class="icon-btn" onclick="abortTimer()" aria-label="выйти из таймера" title="выйти">✕</button>
     </div>
 
-    <!-- Верхняя часть: предмет, задание, круг таймера и компактный бар -->
-    <div class="timer-mini-hide" id="timerContent" style="display:flex; flex:0 0 auto; text-align:center; flex-direction:column; align-items:center; width: 100%;">
-      <div style="font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: 1px;" id="timerSubj">предмет</div>
-      <div style="font-size: 20px; font-weight: 800; margin: 6px 0;" id="timerTitle">задание</div>
+    <!-- Верхний блок с заголовками (остаётся сверху под кнопками) -->
+    <div class="timer-mini-hide" id="timerContent" style="display:flex; flex:0 0 auto; text-align:center; flex-direction:column; align-items:center; width:100%; margin-top:8px;">
+      <div style="font-size:12px; font-weight:800; color:var(--accent); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px;" id="timerSubj">перерыв</div>
+      <div style="font-size:22px; font-weight:800; margin:2px 0 0;" id="timerTitle">разминка</div>
       
+      <!-- Круглый таймер виден только в фазе работы -->
       <div class="timer-circle">
         <svg class="timer-svg" viewBox="0 0 200 200" aria-hidden="true">
           <circle class="timer-circ-bg" cx="100" cy="100" r="96"></circle>
@@ -2299,26 +2346,27 @@
         </svg>
         <div class="timer-digits-box">
           <div class="timer-digits" id="timerDigits">25:00</div>
-          <button type="button" id="btnHideTimerDigits" class="btn-act" onclick="toggleTimerDigits()" title="скрыть/показать время" style="font-size: 11px; padding: 3px 8px; margin-top: 4px; color: var(--muted);">скрыть</button>
-          <span class="badge" style="background: rgba(142,97,255,0.2); color: var(--accent); margin-top: 4px;" id="timerPhase">фаза работы</span>
-        </div>
-      </div>
-
-      <!-- Компактный бар (Время + Прогресс) для фазы отдыха -->
-      <div class="timer-compact-bar" id="timerCompactBar" style="display: none; width: 100%; max-width: 380px; margin: 0 auto 16px;">
-        <div class="compact-time-row" style="display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-bottom: 10px;">
-          <span class="timer-digits" id="compactDigits" style="font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums;">05:00</span>
-          <span class="badge" style="background: rgba(6, 214, 160, 0.15); color: var(--success); font-size: 12px; padding: 4px 10px;">фаза отдыха</span>
-        </div>
-        <div class="prog-bg" style="height: 6px; width: 100%; background: var(--track); border-radius: 999px; overflow: hidden;">
-          <div class="prog-fill" id="compactBarFill" style="height: 100%; width: 100%; background: var(--success); transition: width 0.5s linear;"></div>
+          <button type="button" id="btnHideTimerDigits" class="btn-act" onclick="toggleTimerDigits()" title="скрыть/показать время" style="font-size:11px; padding:3px 8px; margin-top:4px; color:var(--muted);">скрыть</button>
+          <span class="badge" style="background:rgba(142,97,255,0.2); color:var(--accent); margin-top:4px;" id="timerPhase">фаза работы</span>
         </div>
       </div>
     </div>
 
-    <!-- Нижняя группа: Карточка разминки и Кнопки -->
-    <div class="timer-bottom-group" style="width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: auto;">
+    <!-- Нижняя объединённая группа: компактный таймер + карточка + кнопки -->
+    <div class="timer-bottom-group" style="width:100%; max-width:440px; margin:auto auto 0; display:flex; flex-direction:column; align-items:center; gap:10px;">
       
+      <!-- Компактный таймер отдыха: только цифры и короткая полоска прогресса -->
+      <div class="timer-compact-bar" id="timerCompactBar" style="display:none; width:100%; max-width:220px; text-align:center; margin-bottom:2px;">
+        <div class="compact-time-row" style="display:flex; justify-content:center; align-items:baseline; gap:8px; margin-bottom:6px;">
+          <span class="timer-digits" id="compactDigits" style="font-size:36px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1;">05:00</span>
+          <span class="badge" style="background:rgba(6,214,160,0.15); color:var(--success); font-size:11px; padding:2px 7px;">фаза отдыха</span>
+        </div>
+        <div class="prog-bg" style="height:5px; width:100%; max-width:220px; margin:0 auto; background:var(--track); border-radius:999px; overflow:hidden;">
+          <div class="prog-fill" id="compactBarFill" style="height:100%; width:100%; background:var(--success); transition:width 0.5s linear;"></div>
+        </div>
+      </div>
+
+      <!-- Карточка с упражнением -->
       <div id="smartBreakCard" class="glass-card" style="display:none; position:relative; overflow:hidden; padding:14px 16px 10px; margin:0 auto; max-width:440px; width:100%; text-align:left;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:6px;">
           <div id="stepTitle" style="font-weight:800; font-size:16px; color:var(--text); line-height:1.2;">Загрузка...</div>
@@ -2340,12 +2388,13 @@
         </div>
       </div>
       
+      <!-- Кнопки управления -->
       <div class="timer-mini-hide" id="timerControls" style="display:flex; flex-direction:column; gap:8px; width:100%;">
         <div id="timerMainBtns">
           <button class="btn-main" id="timerToggleBtn" onclick="toggleTimer()">пауза</button>
           <button class="btn-main btn-success" id="timerFinishBtn" onclick="finishTask()">завершить задачу</button>
         </div>
-        <button class="btn-act" id="btnSkipBreak" onclick="skipBreak()" style="background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; width:100%; padding:8px; margin-top:4px; display:none;">закончить отдых досрочно</button>
+        <button class="btn-act" id="btnSkipBreak" onclick="skipBreak()" style="background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; width:100%; padding:8px; margin-top:2px; display:none;">закончить отдых досрочно</button>
       </div>
     </div>
 
@@ -2401,6 +2450,7 @@
     const SUPABASE_KEY = 'sb_publishable_4hDZ3w1hYmQ1RCWu1Ge5ug_Q_n7bivL';
     let sbClient = null;
     let isAuthenticated = false;
+    let authActionPending = false;
 
     function initSupabase() {
       if (sbClient || !window.supabase) return;
@@ -2421,6 +2471,8 @@
 
      // ---------- Supabase Auth ----------
       async function handleSignUp() {
+        if (authActionPending) return;
+        if (!navigator.onLine) return showToast('нет подключения к интернету', '!');
         if (!sbClient) return showToast('supabase не подключен', '!');
         const email = $('auth-email').value.trim();
         const password = $('auth-password').value.trim();
@@ -2437,32 +2489,44 @@
           return;
         }
 
-        const { data, error } = await sbClient.auth.signUp({ email, password });
-        if (error) {
-          showToast('ошибка регистрации: ' + error.message, '!');
-        } else if (data && data.user && !data.session) {
-          showToast('регистрация успешна! подтвердите письмо на почте и войдите');
-        } else {
-          showToast('регистрация успешна! пробуем войти...');
-          _cloudSyncToastShown = false;
-          checkUser();
+        authActionPending = true;
+        try {
+          const { data, error } = await sbClient.auth.signUp({ email, password });
+          if (error) {
+            showToast('ошибка регистрации: ' + error.message, '!');
+          } else if (data && data.user && !data.session) {
+            showToast('регистрация успешна! подтвердите письмо на почте и войдите');
+          } else {
+            showToast('регистрация успешна! пробуем войти...');
+            _cloudSyncToastShown = false;
+            checkUser();
+          }
+        } finally {
+          authActionPending = false;
         }
       }
 
      async function handleSignIn() {
+       if (authActionPending) return;
+       if (!navigator.onLine) return showToast('нет подключения к интернету', '!');
        if (!sbClient) return showToast('supabase не подключен', '!');
        const email = $('auth-email').value.trim();
        const password = $('auth-password').value;
        if (!email || !password.trim()) {
          return showToast('введите email и пароль', '!');
        }
-       const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-       if (error) {
-         showToast('ошибка входа: ' + error.message, '!');
-       } else {
-         showToast('успешный вход в облако');
-        _cloudSyncToastShown = false;
-      }
+       authActionPending = true;
+       try {
+         const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+         if (error) {
+           showToast('ошибка входа: ' + error.message, '!');
+         } else {
+           showToast('успешный вход в облако');
+           _cloudSyncToastShown = false;
+         }
+       } finally {
+         authActionPending = false;
+       }
     }
 
     async function handleSignOut() {
@@ -3418,19 +3482,14 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
              const latestData = buildStoragePayload(readRaw('ep_updated_at') || Date.now());
              setSyncStatus('syncing');
              try {
-               const { data: sessionData } = await sbClient.auth.getSession().catch(() => ({ data: {} }));
-               let user = sessionData?.session?.user || null;
-               if (!user) {
-                 const { data: authData, error: authError } = await sbClient.auth.getUser();
-                 if (authError) throw authError;
-                 user = authData?.user || null;
-               }
-               if (!user) {
-                 setSyncStatus('offline');
-                 return;
-               }
+                const { data: sessionData } = await sbClient.auth.getSession().catch(() => ({ data: {} }));
+                const user = sessionData?.session?.user || null;
+                if (!user) {
+                  setSyncStatus('offline');
+                  return;
+                }
 
-               // Проверяем наличие записи без колонки id и без updated_at (только гарантированные user_id и payload)
+                // Проверяем наличие записи без колонки id и без updated_at (только гарантированные user_id и payload)
                const { data: existingRows, error: lookupError } = await sbClient
                  .from('user_data')
                  .select('user_id')
@@ -4331,6 +4390,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     // AI-автопланировщик: распределение задач по дням недели
     async function aiAutoScheduleTasks() {
       if (!state.tasks.length) { showToast('список задач пуст', 'i'); return; }
+      if (!Object.values(state.schedule || {}).some(arr => Array.isArray(arr) && arr.length > 0)) {
+        showToast('сначала заполните школьное расписание во вкладке «график»', 'i');
+        return;
+      }
       if (aiTaskActionPending) return;
       if (!sbClient || !navigator.onLine) {
         showToast('AI недоступен офлайн', '!');
@@ -4548,11 +4611,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     let batchAiPending = false;
     let aiTaskActionPending = false;
     function openBatchAiModal() {
+      if (state.aiDisabled || batchAiPending) return;
       if (!isAuthenticated) {
         showAiRateLimitWarning();
         return;
       }
-      if (state.aiDisabled || batchAiPending) return;
       $('batchAiText').value = '';
       showModal($('batchAiModal'), $('batchAiText'));
     }
@@ -4658,10 +4721,15 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         showToast('введите осмысленный текст задания (минимум 2 символа)', '!');
         return;
       }
-      const day = $('addDay').value;
-      if (!isDayEnabled(day)) { showToast('выберите день недели', '!'); return; }
-      const subj = resolveSubj($('addSubj'), $('addSubjOther'));
-      if (!subj) { showToast('укажите предмет', '!'); return; }
+      let day = $('addDay').value;
+      if (!isDayEnabled(day)) {
+        const dueVal = ($('addDue').value || '').trim();
+        const dueWd = isValidDate(dueVal) ? (new Date(dueVal + 'T00:00:00').getDay() || 7) : 0;
+        day = (dueWd >= 1 && dueWd <= 5) ? String(dueWd) : String(state.curDay || 1);
+        $('addDay').value = day;
+        fillSubjects($('addSubj'), $('addSubjOther'), day, 'самостоятельно');
+      }
+      const subj = resolveSubj($('addSubj'), $('addSubjOther')) || 'самостоятельно';
       const rawDue = ($('addDue').value || '').trim();
       let validDue = '';
       if (rawDue) {
@@ -5215,10 +5283,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
     function showAiRateLimitWarning() {
       if (!isAuthenticated) {
-        showToast('войдите в аккаунт в настройках, чтобы использовать AI-функции ✨', '🔒', 5500, {
-          label: 'войти',
-          run: () => openSettings()
-        });
+        // Показываем модальное окно с просьбой авторизоваться
+        const modal = $('aiAuthModal');
+        if (!modal) return;
+        showModal(modal);
         return;
       }
       if (state.aiDisabled) {
@@ -6023,7 +6091,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       const task = tState.id ? state.tasks.find(x => x.id === tState.id) : null;
       const query = (tState.subj || (task ? task.subj : '')) + ' ' + (tState.taskText || (task ? task.text : ''));
       const routine = generateSmartRoutine(query, tState.cycle, tState.taskComp);
-      if (state.aiDisabled) {
+      if (state.aiDisabled || !isAuthenticated || !isAiAvailable()) {
         breakPlan = routine.steps;
         $('breakCategory').textContent = routine.categoryName;
         updateBreakUI();
@@ -6482,8 +6550,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     }
     function updateAIFeatureVisibility() {
       document.body.classList.toggle('ai-disabled', state.aiDisabled);
-      const guestOrUnavailable = aiUnreachable || !isAuthenticated;
-      document.body.classList.toggle('ai-unavailable', guestOrUnavailable);
+      const unavailable = aiUnreachable;
+      document.body.classList.toggle('ai-unavailable', unavailable);
       const aiAvailable = isAiAvailable();
       const urgencyChip = $('urgencyPrioChip');
       if (urgencyChip) urgencyChip.style.display = aiAvailable ? 'none' : '';
@@ -7145,9 +7213,21 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         const id = b.dataset.id;
         if (b.dataset.act === 'focus') openTimer(id);
         else if (b.dataset.act === 'decompose') decomposeTask(id, b);
-        else if (b.dataset.act === 'done') completeTaskById(id);
-        else if (b.dataset.act === 'edit') openEdit(id);
-        else if (b.dataset.act === 'del') delTask(id);
+        else if (b.dataset.act === 'done') {
+          completeTaskById(id);
+          document.querySelectorAll('.task-more-dropdown.show').forEach(d => d.classList.remove('show'));
+          document.querySelectorAll('.task-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+        }
+        else if (b.dataset.act === 'edit') {
+          openEdit(id);
+          document.querySelectorAll('.task-more-dropdown.show').forEach(d => d.classList.remove('show'));
+          document.querySelectorAll('.task-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+        }
+        else if (b.dataset.act === 'del') {
+          delTask(id);
+          document.querySelectorAll('.task-more-dropdown.show').forEach(d => d.classList.remove('show'));
+          document.querySelectorAll('.task-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+        }
         else if (b.dataset.act === 'more') {
           e.stopPropagation();
           const card = b.closest('.task-card');
