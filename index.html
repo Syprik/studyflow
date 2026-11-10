@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <link rel="manifest" href="./manifest.json">
@@ -615,7 +615,7 @@
       font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px;
       min-width: 28px; text-align: center;
     }
-    .section-title { font-size: 15px; font-weight: 800; margin: 18px 0 8px 0; }
+    .section-title { font-size: 11px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin: 18px 0 8px 0; }
 
     .stats-grid {
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -795,7 +795,8 @@
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
     }
     .task-subj-badge {
-      font-size: 11px; font-weight: 700;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.6px;
+      text-transform: uppercase;
       padding: 2px 8px;
       border-radius: 999px;
       background: var(--chip-bg);
@@ -947,10 +948,12 @@
       background: var(--border);
     }
     .break-divider span {
-      font-size: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
       color: var(--muted);
       white-space: nowrap;
-      font-weight: 600;
     }
     .break-divider .btn-break {
       font-size: 12px;
@@ -1062,8 +1065,10 @@
       margin-bottom: 16px;
     }
     .archive-group-title {
-      font-size: 12.5px;
+      font-size: 11px;
       font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 8px;
       padding-left: 4px;
@@ -1151,7 +1156,7 @@
       border-radius: 999px;
     }
 
-    .badge { padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .badge { padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; display: inline-block; }
     .badge-prio { background: rgba(142, 97, 255, 0.15); color: var(--accent); }
     .badge-danger { background: rgba(255, 77, 109, 0.16); color: var(--danger); }
     .badge-warning { background: rgba(255, 183, 3, 0.16); color: var(--warning); }
@@ -1329,6 +1334,9 @@
       background: none;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
+    }
+    .modal-header span {
+      font-weight: 800;
     }
     .modal-header > * {
       pointer-events: auto;
@@ -1868,7 +1876,7 @@
   <main>
     <!-- ОБЗОР -->
     <section id="view-overview" class="view-section active">
-      <div class="title"><span>обзор и статистика</span></div>
+      <div class="title"><span>Обзор и статистика</span></div>
 
        <div class="glass ai-day-review" id="aiDayReviewBanner">
           <span aria-hidden="true" style="font-size:20px;line-height:1;">✨</span>
@@ -1899,15 +1907,26 @@
       </div>
 
       <div class="glass" style="padding: 14px; margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; cursor: pointer;" onclick="toggleProgressStats()">
           <span>прогресс выполнения</span>
           <span id="progPercent" style="color: var(--accent);">—</span>
         </div>
         <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+        
+        <!-- Раскрывающиеся итоги за период -->
+        <div id="progressStatsExpanded" style="display:none; margin-top:14px;">
+          <div class="filter-chips-wrapper" style="margin-bottom:12px;">
+            <div class="chips" id="periodChips">
+              <button class="chip chip-action" onclick="setPeriod('day', this)">день</button>
+              <button class="chip chip-action" onclick="setPeriod('week', this)">неделя</button>
+              <button class="chip chip-action" onclick="setPeriod('month', this)">месяц</button>
+              <button class="chip chip-action" onclick="setPeriod('year', this)">год</button>
+              <button class="chip chip-action" onclick="setPeriod('all', this)">всё время</button>
+            </div>
+          </div>
+          <div class="stats-grid" id="periodStats"></div>
+        </div>
       </div>
-
-      <div class="section-title">итоги за период</div>
-      <div class="stats-grid" id="periodStats"></div>
 
       <div class="section-title">расписание на неделю</div>
       <div class="week-row" id="weekPills"></div>
@@ -1921,7 +1940,7 @@
 
     <!-- ГРАФИК -->
     <section id="view-schedule" class="view-section">
-      <div class="title"><span>школьный график</span></div>
+      <div class="title"><span>Школьный график</span></div>
 
       <div class="glass" style="padding: 14px; margin-bottom: 16px; border: 1px dashed var(--accent); cursor: pointer;" onclick="$('importScheduleFileTop').click()">
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -1956,7 +1975,7 @@
 
     <!-- ДОБАВИТЬ -->
     <section id="view-add" class="view-section">
-      <div class="title"><span>новое задание</span></div>
+      <div class="title"><span>Новое задание</span></div>
       <div class="glass" style="padding: 16px;">
         <form id="addForm">
           <div class="chips" style="margin-bottom:8px;">
@@ -2018,7 +2037,7 @@
     <section id="view-tasks" class="view-section">
       <div class="title">
         <div class="title-left">
-          <span>план работы</span>
+          <span>План работы</span>
           <span class="badge-count" id="taskBadge">0</span>
         </div>
       </div>
@@ -2037,7 +2056,7 @@
     <!-- АРХИВ -->
     <section id="view-archive" class="view-section">
       <div class="title">
-        <span>архив заданий</span>
+        <span>Архив заданий</span>
         <button class="archive-clear-btn" onclick="clearArchive()">очистить</button>
       </div>
       <div id="archiveList"></div>
@@ -2091,7 +2110,7 @@
   <div class="modal-overlay" id="setModal">
     <div class="glass modal-box" role="dialog" aria-modal="true" aria-labelledby="setTitle">
       <div class="modal-header">
-        <span id="setTitle" style="font-weight: 800; font-size: 16px;">настройки</span>
+        <span id="setTitle" style="font-weight: 800; font-size: 16px;">Настройки</span>
         <button class="icon-btn" onclick="closeSettings()" aria-label="закрыть настройки" style="width:30px;height:30px;">✕</button>
       </div>
       <div class="modal-body">
@@ -2347,7 +2366,7 @@
         <div class="timer-digits-box">
           <div class="timer-digits" id="timerDigits">25:00</div>
           <button type="button" id="btnHideTimerDigits" class="btn-act" onclick="toggleTimerDigits()" title="скрыть/показать время" style="font-size:11px; padding:3px 8px; margin-top:4px; color:var(--muted);">скрыть</button>
-          <span class="badge" style="background:rgba(142,97,255,0.2); color:var(--accent); margin-top:4px;" id="timerPhase">фаза работы</span>
+          <span class="badge" style="background:rgba(142,97,255,0.2); color:var(--accent); margin-top:4px;" id="timerPhase">ФАЗА РАБОТЫ</span>
         </div>
       </div>
     </div>
@@ -2359,7 +2378,7 @@
       <div class="timer-compact-bar" id="timerCompactBar" style="display:none; width:100%; max-width:220px; text-align:center; margin-bottom:2px;">
         <div class="compact-time-row" style="display:flex; justify-content:center; align-items:baseline; gap:8px; margin-bottom:6px;">
           <span class="timer-digits" id="compactDigits" style="font-size:36px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1;">05:00</span>
-          <span class="badge" style="background:rgba(6,214,160,0.15); color:var(--success); font-size:11px; padding:2px 7px;">фаза отдыха</span>
+          <span class="badge" style="background:rgba(6,214,160,0.15); color:var(--success); font-size:11px; padding:2px 7px;">ФАЗА ОТДЫХА</span>
         </div>
         <div class="prog-bg" style="height:5px; width:100%; max-width:220px; margin:0 auto; background:var(--track); border-radius:999px; overflow:hidden;">
           <div class="prog-fill" id="compactBarFill" style="height:100%; width:100%; background:var(--success); transition:width 0.5s linear;"></div>
@@ -3559,13 +3578,18 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
     function cleanTaskText(rawText) {
       if (!rawText) return '';
-      return String(rawText)
+      let text = String(rawText)
         .replace(/\s+/g, ' ')
         .trim()
         .replace(/^(?:дз|домашк\S*|задание(?:\s+на\s+дом)?)\s*/iu, '')
         .replace(/^(?:(?:по|к|на|до|в|во)\s+)+/iu, '')
         .replace(/^[:;\s–—\-.,]+|[:;\s–—\-.,]+$/g, '')
         .trim();
+      // Автокапитализация первого символа
+      if (text.length > 0) {
+        text = text.charAt(0).toUpperCase() + text.slice(1);
+      }
+      return text;
     }
 
     function normalizeGluedTokens(str) {
@@ -3897,8 +3921,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
     function normalizeTask(t) {
   if (!t || typeof t !== 'object') return null;
-  const text = String(t.text || '').trim().slice(0, 500);
+  let text = String(t.text || '').trim().slice(0, 500);
   if (!text) return null;
+  // Автокапитализация первого символа
+  text = text.charAt(0).toUpperCase() + text.slice(1);
   const rawId = typeof t.id === 'string' ? t.id : '';
   const id = /^[A-Za-z0-9_-]{1,64}$/.test(rawId) ? rawId : newId();
   const day = ['1', '2', '3', '4', '5'].includes(String(t.day)) ? String(t.day) : '';
@@ -4280,6 +4306,14 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         : '<div style="color:var(--muted);font-size:12px;">нет активных заданий</div>';
 
       renderPeriodStats();
+      
+      // Подсветка активного чипа периода
+      const chips = $('periodChips')?.querySelectorAll('.chip-action');
+      chips?.forEach(c => {
+        const isActive = c.getAttribute('onclick')?.includes(`'${state.period}'`);
+        c.classList.toggle('active', !!isActive);
+      });
+      
       const titleOverdue = overdue ? `(${overdue}) ` : '';
       document.title = titleOverdue + DEFAULT_TITLE;
     }
@@ -4449,9 +4483,25 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       }
     }
 
+    function toggleProgressStats() {
+      const expanded = $('progressStatsExpanded');
+      if (!expanded) return;
+      const isHidden = expanded.style.display === 'none' || expanded.style.display === '';
+      expanded.style.display = isHidden ? 'block' : 'none';
+      if (isHidden) {
+        renderPeriodStats();
+      }
+    }
+
     function setPeriod(kind, btn) {
       if (!VALID_PERIODS.includes(kind)) return;
       state.period = kind;
+      
+      // Подсветка активного чипа
+      const chips = $('periodChips')?.querySelectorAll('.chip-action');
+      chips?.forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      
       const reviewTitle = $('aiDayReviewTitle');
       if (reviewTitle) {
         reviewTitle.textContent = kind === 'week' ? 'AI-итог недели' : 'AI-итог дня';
@@ -5468,7 +5518,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     function updatePhaseUI() {
       const isBreak = tState.phase === 'break';
       $('timerView').classList.toggle('is-break', isBreak);
-      $('timerPhase').textContent = isBreak ? 'фаза отдыха' : 'фаза работы';
+      $('timerPhase').textContent = isBreak ? 'ФАЗА ОТДЫХА' : 'ФАЗА РАБОТЫ';
       $('timerPhase').style.color = isBreak ? 'var(--success)' : 'var(--accent)';
       $('timerBar').style.stroke = isBreak ? 'var(--success)' : 'var(--accent)';
       setDisplay('btnSkipBreak', isBreak);
@@ -7493,7 +7543,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         tab: 'schedule',
         getTarget: () => document.querySelector('#view-schedule .glass[onclick*="importScheduleFileTop"]'),
         title: '📅 График и дневник',
-        text: 'Забей уроки на неделю или закидь Excel-файл из электронного дневника — StudyFlow сам составит сетку расписания.'
+        text: 'Забей уроки на неделю или закинь Excel-файл из электронного дневника — StudyFlow сам составит сетку расписания.'
       },
       {
         tab: 'add',
@@ -7505,7 +7555,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         tab: 'tasks',
         getTarget: () => $('filterChips'),
         title: '⚡ План и AI-сортировка',
-        text: 'Кнопки AI-приоритета и AI-плана недели автоматически сбалансируют твою нагрузку с учётом уроков и дедлайнов.'
+        text: 'Кнопки AI-приоритета и AI-плана недели автоматически сбалансируют твою нагрузку с учётом уроков и сроков сдачи.'
       },
       {
         tab: 'tasks',
@@ -7751,7 +7801,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
           <span style="font-size: 18px; flex-shrink: 0; line-height: 1.2;">🎯</span>
           <div>
             <b style="color: var(--accent);">фокус-таймер и Dynamic Island</b><br>
-            <span style="color: var(--muted);">сворачивайте таймер в верхнюю капсулу eduplan, скрывайте секунды кнопкой «скрыть», получайте системные пуши. кнопка «начать следующее» переключает на следующую задачу.</span>
+            <span style="color: var(--muted);">сворачивайте таймер в верхнюю капсулу studyflow, скрывайте секунды кнопкой «скрыть», получайте системные пуши. кнопка «начать следующее» переключает на следующую задачу.</span>
           </div>
         </div>
 

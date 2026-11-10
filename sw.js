@@ -1,7 +1,7 @@
 // service worker для studyflow
 // bump SW_VERSION при каждом обновлении index.html, чтобы клиент подхватил новую версию
 
-const SW_VERSION = 'v1.0.0';
+const SW_VERSION = 'v1.0.2';
 const APP_CACHE = `studyflow-app-${SW_VERSION}`;
 const RUNTIME_CACHE = `studyflow-runtime-${SW_VERSION}`;
 const CDN_CACHE = `studyflow-cdn-${SW_VERSION}`;
