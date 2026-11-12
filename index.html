@@ -20,9 +20,11 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%238e61ff'/%3E%3Ctext x='50' y='72' font-size='62' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='white'%3E%E2%9D%96%3C/text%3E%3C/svg%3E">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,300..900;1,6..12,300..900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,300..900;1,6..12,300..900&display=swap');
 
     :root {
+      --font-base: 'Nunito Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-display: 'Comfortaa', cursive, sans-serif;
       --bg: #090b14;
       --card: linear-gradient(135deg, rgba(32, 38, 66, 0.28) 0%, rgba(16, 20, 38, 0.16) 100%);
       --card-solid: #161b2e;
@@ -320,7 +322,8 @@
       -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
       border: 1px solid var(--border);
       overflow: hidden;
-      will-change: width, height, transform;
+      box-sizing: border-box;
+      will-change: width, transform;
       box-shadow:
         inset 0 1.5px 2px var(--glass-highlight),
         inset 0 -1px 2px var(--glass-rim),
@@ -449,6 +452,7 @@
       white-space: nowrap;
       opacity: 1;
       transform: translate3d(0, 0, 0);
+      will-change: transform, opacity, filter;
     }
     .brand-notice {
       position: absolute;
@@ -515,17 +519,18 @@
       transform: translateZ(0);
     }
     .brand-title {
-      font-family: 'Nunito Sans', sans-serif;
-      font-size: 18px;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 16px;
       font-weight: 800;
       letter-spacing: -0.3px;
       line-height: 1;
       background: linear-gradient(135deg, var(--text) 45%, var(--accent));
-      background-size: 200% 200%;
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: brandFlow 60s ease-in-out infinite alternate;
     }
 
     /* Мягкий отскок при поимке таймера (без раздувания) */
@@ -608,8 +613,21 @@
       -webkit-backface-visibility: hidden;
     }
 
-    .title { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
-    .title-left { display: flex; align-items: center; gap: 10px; }
+    /* Акцентный шрифт для заголовков, бейджей и кнопок */
+    .title,
+    .modal-header span,
+    .btn-main,
+    .task-subj-badge,
+    .archive-subj,
+    .stat-val,
+    .timer-digits,
+    #timerSubj,
+    #timerTitle {
+      font-family: var(--font-display);
+    }
+
+    .title { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; display: flex; justify-content: center; align-items: center; text-align: center; position: relative; }
+    .title-left { display: flex; align-items: center; justify-content: center; gap: 10px; }
     .badge-count {
       background: var(--card-sub); border: 1px solid var(--border); color: var(--muted);
       font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px;
@@ -1048,18 +1066,19 @@
 
     /* ---------- Архив ---------- */
     .archive-clear-btn {
-      background: var(--ctrl-bg);
-      border: 1px solid var(--border);
+      font-size: 11px;
       color: var(--danger);
-      font-size: 12px;
-      font-weight: 700;
+      background: none;
+      border: none;
       cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 999px;
-      transition: all 0.2s;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
     }
     .archive-clear-btn:hover {
-      background: rgba(255, 77, 109, 0.14);
+      opacity: 1;
     }
     .archive-group {
       margin-bottom: 16px;
@@ -1834,6 +1853,215 @@
         padding: 10px;
       }
     }
+
+    /* Главное меню настроек (drill-down как в iOS) */
+    #setModal .modal-body {
+      padding: 6px 22px 14px !important;
+      display: block !important;
+    }
+    .settings-cat-title {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 16px 0 8px 4px;
+    }
+    .settings-cat-title:first-child {
+      margin-top: 4px;
+    }
+    .settings-group-card {
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 4px 14px;
+      margin-bottom: 6px;
+    }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+    .settings-row-col {
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .settings-row-col:last-child {
+      border-bottom: none;
+    }
+    .settings-item-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .settings-item-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    /* Вайрфрейм-превью для выбора сетки расписания */
+    .layout-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .layout-option {
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.22s ease;
+    }
+    .layout-option:hover {
+      background: var(--ctrl-hover);
+    }
+    .layout-option.active {
+      border-color: var(--accent);
+      background: rgba(142, 97, 255, 0.14);
+      box-shadow: 0 0 14px var(--glow);
+    }
+    .wf-box {
+      width: 100%;
+      height: 46px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      justify-content: center;
+    }
+    .wf-head {
+      width: 42%;
+      height: 4px;
+      border-radius: 99px;
+      background: var(--muted);
+      opacity: 0.65;
+    }
+    .wf-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+    .wf-pill {
+      height: 6px;
+      border-radius: 99px;
+      background: var(--muted);
+      opacity: 0.35;
+    }
+    .wf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .wf-line {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .wf-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--muted);
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+    .wf-bar {
+      height: 4px;
+      flex: 1;
+      border-radius: 99px;
+      background: var(--muted);
+      opacity: 0.35;
+    }
+    .wf-acc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 10px;
+      padding: 0 4px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.06);
+      line-height: 1;
+    }
+    .layout-option.active .wf-head,
+    .layout-option.active .wf-dot {
+      background: var(--accent);
+      opacity: 1;
+    }
+    .layout-option.active .wf-pill,
+    .layout-option.active .wf-bar {
+      background: var(--accent);
+      opacity: 0.45;
+    }
+    .layout-option-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .layout-option.active .layout-option-label {
+      color: var(--text);
+    }
+
+    /* Вертикальный список и аккордеон в разделе «График» */
+    .sched-vertical-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .sched-vertical-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: var(--chip-bg);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .sched-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(142, 97, 255, 0.16);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sched-acc-header {
+      cursor: pointer;
+      user-select: none;
+    }
+    .sched-acc-chevron {
+      transition: transform 0.22s ease;
+      display: inline-block;
+      margin-left: 6px;
+    }
+    .sched-card.is-open .sched-acc-chevron {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 <body>
@@ -1889,20 +2117,12 @@
 
       <div class="stats-grid">
         <div class="glass stat-cell">
-          <div class="stat-label">открыто задач</div>
-          <div class="stat-val" id="statTotal">0</div>
-        </div>
-        <div class="glass stat-cell">
-          <div class="stat-label" style="color:var(--danger);">просрочено</div>
+          <div class="stat-label">просрочено</div>
           <div class="stat-val" style="color: var(--danger);" id="statOverdue">0</div>
         </div>
         <div class="glass stat-cell">
           <div class="stat-label">запланировано</div>
           <div class="stat-val" id="statPlanned">0 мин</div>
-        </div>
-        <div class="glass stat-cell">
-          <div class="stat-label" style="color:var(--success);">выполнено всего</div>
-          <div class="stat-val" style="color: var(--success);" id="statCompleted">0</div>
         </div>
       </div>
 
@@ -1915,6 +2135,7 @@
         
         <!-- Раскрывающиеся итоги за период -->
         <div id="progressStatsExpanded" style="display:none; margin-top:14px;">
+          <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px;">итоги за период</div>
           <div class="filter-chips-wrapper" style="margin-bottom:12px;">
             <div class="chips" id="periodChips">
               <button class="chip chip-action" onclick="setPeriod('day', this)">день</button>
@@ -2057,7 +2278,6 @@
     <section id="view-archive" class="view-section">
       <div class="title">
         <span>Архив заданий</span>
-        <button class="archive-clear-btn" onclick="clearArchive()">очистить</button>
       </div>
       <div id="archiveList"></div>
     </section>
@@ -2078,29 +2298,17 @@
   <div class="modal-overlay" id="aiAuthModal">
     <div class="glass modal-box" role="dialog" aria-modal="true" aria-labelledby="aiAuthTitle" style="max-width: 460px;">
       <div class="modal-header">
-        <span id="aiAuthTitle" style="font-weight: 800; font-size: 16px;">✨ AI-функции</span>
+        <span id="aiAuthTitle" style="font-weight: 800; font-size: 16px;">AI-функции требуют авторизации</span>
         <button class="icon-btn" onclick="hideModal($('aiAuthModal'))" aria-label="закрыть" style="width:30px;height:30px;">✕</button>
       </div>
-      <div class="modal-body" style="padding: 18px 22px 22px; text-align: center;">
-        <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
-        <p style="font-size: 14px; font-weight: 800; margin-bottom: 8px; line-height: 1.4;">
-          AI-функции доступны только зарегистрированным пользователям
-        </p>
-        <p style="font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 16px;">
-          Чтобы использовать AI-приоритизацию, автопланирование, разбор задач из чата и умные разминки — сначала войдите в аккаунт. Это бесплатно и нужно для подключения к нейросети.
-        </p>
-        <div style="background: var(--card-sub); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; text-align: left;">
-          <div style="font-size: 11.5px; font-weight: 800; color: var(--accent); margin-bottom: 6px;">Как войти:</div>
-          <ol style="font-size: 12px; color: var(--muted); line-height: 1.6; padding-left: 18px; margin: 0;">
-            <li>Нажмите кнопку <b>≡</b> (шестерёнка) внизу экрана</li>
-            <li>В разделе <b>«облачная синхронизация»</b> введите email и пароль</li>
-            <li>Нажмите <b>«войти»</b> или <b>«регистрация»</b></li>
-            <li>После входа AI-функции станут доступны</li>
-          </ol>
+      <div class="modal-body" style="padding: 16px 20px;">
+        <div style="font-weight: 800; font-size: 15px; margin-bottom: 8px; color: var(--text);">для использования AI-функций необходимо войти в аккаунт</div>
+        <div style="font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5;">
+          AI-функции используют серверные модели для анализа задач, расстановки приоритетов и автоматического планирования. Данные обрабатываются безопасно и не сохраняются.
         </div>
         <div style="display: flex; gap: 8px;">
           <button class="btn-act" style="flex:1;" onclick="hideModal($('aiAuthModal'))">позже</button>
-          <button class="btn-main" style="flex:2; padding: 12px;" onclick="hideModal($('aiAuthModal')); openSettings();">перейти в настройки</button>
+          <button class="btn-main" style="flex:2; padding: 12px;" onclick="hideModal($('aiAuthModal')); openSettings('cloud');">перейти в настройки</button>
         </div>
       </div>
     </div>
@@ -2114,130 +2322,191 @@
         <button class="icon-btn" onclick="closeSettings()" aria-label="закрыть настройки" style="width:30px;height:30px;">✕</button>
       </div>
       <div class="modal-body">
-        <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <div style="font-weight: 700; font-size: 13px;" id="liquidLabel">эффект liquid glass</div>
-          <div style="font-size: 11px; color: var(--muted);">живой фон и размытие</div>
-        </div>
-        <input type="checkbox" id="setLiquid" onchange="toggleLiquid(this.checked)" aria-labelledby="liquidLabel" style="width:20px;height:20px;accent-color:var(--accent);">
-      </div>
-      <div class="form-group" style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div id="notifLabel" style="font-weight:700;font-size:13px;">системные уведомления</div>
-          <div style="font-size:11px;color:var(--muted);">пуши таймера при свёрнутом браузере</div>
-        </div>
-        <input type="checkbox" id="setNotif" onchange="toggleNotif(this.checked)" aria-labelledby="notifLabel" style="width:20px;height:20px;accent-color:var(--accent);">
-      </div>
- <div class="form-group" style="display:flex;justify-content:space-between;align-items:center;">
- <div>
- <div id="welcomeLabel" style="font-weight:700;font-size:13px;">приветствие при запуске</div>
- <div style="font-size:11px;color:var(--muted);">показывать экран с описанием функций</div>
- </div>
- <input type="checkbox" id="setShowWelcome" onchange="toggleShowWelcome(this.checked)" aria-labelledby="welcomeLabel" style="width:20px;height:20px;accent-color:var(--accent);">
- </div>
-      <div class="form-group" id="aiSettingsGroup" style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="font-weight:700;font-size:13px;" id="aiDisabledLabel">отключить AI-функции</div>
-          <div style="font-size:11px;color:var(--muted);">скрыть AI-инструменты и использовать локальные разминки</div>
-        </div>
-        <input type="checkbox" id="setAIDisabled" onchange="toggleAIFeaturesDisabled(this.checked)" aria-labelledby="aiDisabledLabel" style="width:20px;height:20px;accent-color:var(--accent);">
-      </div>
-
-      <div class="form-group" style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="font-weight:700;font-size:13px;">автоархивация старых задач</div>
-          <div style="font-size:11px;color:var(--muted);">переносить в архив задачи за прошлые дни</div>
-        </div>
-        <input type="checkbox" id="setAutoArchive" onchange="toggleAutoArchive(this.checked)" style="width:20px;height:20px;accent-color:var(--accent);">
-      </div>
-      <div class="form-group" style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div id="schedSavedLabel" style="font-weight:700;font-size:13px;">скрыть вкладку «график»</div>
-          <div style="font-size:11px;color:var(--muted);">убрать из нижнего меню (открыть можно кнопкой ниже)</div>
-        </div>
-        <input type="checkbox" id="setHideSched" onchange="toggleHideSched(this.checked)" aria-labelledby="schedSavedLabel" style="width:20px;height:20px;accent-color:var(--accent);">
-      </div>
-      <button type="button" class="btn-act" style="width:100%; margin-bottom:14px;" onclick="closeSettings(); tab('schedule', navBtn('schedule'));">📅 открыть школьный график</button>
-      <div class="form-group">
-        <label class="label" for="setTheme">тема liquid glass:</label>
-        <select id="setTheme" class="input" onchange="changeTheme(this.value)">
-          <option value="dark">тёмный космос</option>
-          <option value="light">светлое стекло</option>
-          <option value="purple">неоновый аметист</option>
-          <option value="emerald">изумрудная волна</option>
-          <option value="sunset">закатный рубин</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="label" for="setStart">стартовая страница:</label>
-        <select id="setStart" class="input" onchange="changeStartPage(this.value)">
-          <option value="auto">умный (по времени дня)</option>
-          <option value="overview">обзор и статистика</option>
-          <option value="schedule">школьный график</option>
-          <option value="add">новое задание</option>
-          <option value="tasks">план работы</option>
-          <option value="archive">архив заданий</option>
-        </select>
-      </div>
-      <div class="form-group" id="autoTimeSettings" style="display: none; gap: 8px;">
-        <div style="flex: 1 1 0; min-width: 0;">
-          <label class="label" for="setSchoolStart">начало уроков:</label>
-          <input type="time" id="setSchoolStart" class="input" value="08:00">
-        </div>
-        <div style="flex: 1 1 0; min-width: 0;">
-          <label class="label" for="setSchoolEnd">конец уроков:</label>
-          <input type="time" id="setSchoolEnd" class="input" value="13:15">
-        </div>
-      </div>
-      <div style="display: flex; gap: 8px; margin-top: 8px;">
-        <button class="btn-act" style="flex:1;" onclick="exportJSON()">экспорт</button>
-        <button class="btn-act" style="flex:1;" onclick="$('importFile').click()">импорт</button>
-        <input type="file" id="importFile" accept=".json,application/json" style="display:none;">
-      </div>
-      <button class="btn-act" id="btnUndoImport" style="width:100%; margin-top:8px; display:none;" onclick="undoImport()">отменить последний импорт</button>
-      <!-- СИНХРОНИЗАЦИЯ SUPABASE -->
-      <div class="glass-card" style="margin-top: 14px; padding: 14px; border: 1px solid var(--border);">
-        <div style="font-weight: 800; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-          <span>☁️ облачная синхронизация</span>
-        </div>
-        <div id="cloudSyncStatus" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-          <span class="sync-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-          <span class="sync-text">не синхронизировано</span>
-        </div>
-
-        <!-- форма входа / регистрации -->
-        <div id="auth-guest-ui">
-          <input type="email" id="auth-email" class="input" placeholder="ваш email" style="margin-bottom: 8px;">
-          <input type="password" id="auth-password" class="input" placeholder="пароль" style="margin-bottom: 8px;">
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn-act btn-go" style="flex: 1; justify-content: center;" onclick="handleSignIn()">войти</button>
-            <button type="button" class="btn-act" style="flex: 1; justify-content: center;" onclick="handleSignUp()">регистрация</button>
+        <!-- КАТЕГОРИЯ 1: ВНЕШНИЙ ВИД -->
+        <div class="settings-cat-title">внешний вид</div>
+        <div class="settings-group-card">
+          <div class="settings-row-col">
+            <label class="label" for="setTheme">тема liquid glass:</label>
+            <select id="setTheme" class="input" onchange="changeTheme(this.value)">
+              <option value="dark">тёмный космос</option>
+              <option value="light">светлое стекло</option>
+              <option value="purple">неоновый аметист</option>
+              <option value="emerald">изумрудная волна</option>
+              <option value="sunset">закатный рубин</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-item-title" id="liquidLabel">эффект liquid glass</div>
+              <div class="settings-item-desc">живой переливающийся фон и размытие</div>
+            </div>
+            <input type="checkbox" id="setLiquid" onchange="toggleLiquid(this.checked)" aria-labelledby="liquidLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+          </div>
+          <div class="settings-row-col">
+            <div class="settings-item-title">вид сетки в «графике»</div>
+            <div class="settings-item-desc">как отображать уроки в расписании</div>
+            <div class="layout-picker-grid" id="schedLayoutPicker">
+              <button type="button" class="layout-option active" data-layout="horizontal" onclick="changeSchedLayout('horizontal')">
+                <div class="wf-box">
+                  <div class="wf-head"></div>
+                  <div class="wf-pills">
+                    <span class="wf-pill" style="width:34%;"></span>
+                    <span class="wf-pill" style="width:48%;"></span>
+                    <span class="wf-pill" style="width:42%;"></span>
+                    <span class="wf-pill" style="width:30%;"></span>
+                  </div>
+                </div>
+                <span class="layout-option-label">плитками</span>
+              </button>
+              <button type="button" class="layout-option" data-layout="vertical" onclick="changeSchedLayout('vertical')">
+                <div class="wf-box">
+                  <div class="wf-head"></div>
+                  <div class="wf-list">
+                    <div class="wf-line"><span class="wf-dot"></span><span class="wf-bar"></span></div>
+                    <div class="wf-line"><span class="wf-dot"></span><span class="wf-bar" style="max-width:75%;"></span></div>
+                    <div class="wf-line"><span class="wf-dot"></span><span class="wf-bar" style="max-width:85%;"></span></div>
+                  </div>
+                </div>
+                <span class="layout-option-label">списком</span>
+              </button>
+              <button type="button" class="layout-option" data-layout="accordion" onclick="changeSchedLayout('accordion')">
+                <div class="wf-box" style="gap: 2px; padding: 4px 5px;">
+                  <div class="wf-acc-row"><span class="wf-head" style="width:45%; height:3px;"></span><span style="font-size:7px; line-height:1; color:var(--muted);">▾</span></div>
+                  <div class="wf-acc-row"><span class="wf-head" style="width:38%; height:3px;"></span><span style="font-size:7px; line-height:1; color:var(--muted);">▾</span></div>
+                  <div class="wf-acc-row"><span class="wf-head" style="width:50%; height:3px;"></span><span style="font-size:7px; line-height:1; color:var(--muted);">▾</span></div>
+                </div>
+                <span class="layout-option-label">по клику</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- состояние: пользователь залогинен -->
-        <div id="auth-user-ui" style="display: none; text-align: center;">
-          <div style="font-size: 12px; color: var(--muted); margin-bottom: 4px;">вы вошли как:</div>
-          <div id="user-email-display" style="font-weight: 800; font-size: 13px; color: var(--accent); margin-bottom: 10px; word-break: break-all;"></div>
-          <button type="button" class="btn-act btn-danger" style="width: 100%; justify-content: center;" onclick="handleSignOut()">выйти из аккаунта</button>
+        <!-- КАТЕГОРИЯ 2: УЧЁБА И ГРАФИК -->
+        <div class="settings-cat-title">учёба и график</div>
+        <div class="settings-group-card">
+          <div class="settings-row-col">
+            <label class="label" for="setStart">стартовая страница:</label>
+            <select id="setStart" class="input" onchange="changeStartPage(this.value)">
+              <option value="auto">умный (по времени дня)</option>
+              <option value="overview">обзор и статистика</option>
+              <option value="schedule">школьный график</option>
+              <option value="add">новое задание</option>
+              <option value="tasks">план работы</option>
+              <option value="archive">архив заданий</option>
+            </select>
+            <div id="autoTimeSettings" style="display: none; gap: 8px; margin-top: 10px;">
+              <div style="flex: 1 1 0; min-width: 0;">
+                <label class="label" for="setSchoolStart">начало уроков:</label>
+                <input type="time" id="setSchoolStart" class="input" value="08:00">
+              </div>
+              <div style="flex: 1 1 0; min-width: 0;">
+                <label class="label" for="setSchoolEnd">конец уроков:</label>
+                <input type="time" id="setSchoolEnd" class="input" value="13:15">
+              </div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-item-title">автоархивация старых задач</div>
+              <div class="settings-item-desc">переносить в архив задачи за прошлые дни</div>
+            </div>
+            <input type="checkbox" id="setAutoArchive" onchange="toggleAutoArchive(this.checked)" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-item-title" id="schedSavedLabel">скрыть вкладку «график»</div>
+              <div class="settings-item-desc">убрать из нижнего меню для минимализма</div>
+            </div>
+            <input type="checkbox" id="setHideSched" onchange="toggleHideSched(this.checked)" aria-labelledby="schedSavedLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+          </div>
+          <div class="settings-row-col">
+            <button type="button" class="btn-act" style="width:100%;" onclick="closeSettings(); tab('schedule', navBtn('schedule'));">📅 открыть школьный график</button>
+          </div>
         </div>
-      </div>
 
-      <button class="btn-act btn-danger" style="width:100%; margin-top:12px;" onclick="resetAll()">сбросить все данные</button>
-      <button type="button" class="btn-act" style="width:100%; margin-top:10px;" onclick="closeSettings(); startOnboardingTour(true);">повторить интерактивное обучение</button>
-      
-      <!-- Анимированная капсула настроек -->
-      <div class="settings-brand-pill" id="setModalFooter">
-        <div class="settings-pill-default" id="setModalFooterDefault">
-          <span class="settings-pill-logo">❖</span>
-          <span aria-hidden="true">•</span>
-          <span class="settings-pill-ver">studyflow v1.0</span>
+        <!-- КАТЕГОРИЯ 3: ТАЙМЕР И AI -->
+        <div class="settings-cat-title">таймер и ai</div>
+        <div class="settings-group-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-item-title" id="soundLabel">звуки таймера</div>
+              <div class="settings-item-desc">сигнал завершения фазы работы и отдыха</div>
+            </div>
+            <input type="checkbox" id="setSound" onchange="toggleSound(this.checked)" aria-labelledby="soundLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-item-title" id="notifLabel">системные уведомления</div>
+              <div class="settings-item-desc">пуши таймера при свёрнутом браузере</div>
+            </div>
+            <input type="checkbox" id="setNotif" onchange="toggleNotif(this.checked)" aria-labelledby="notifLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+          </div>
+          <div class="settings-row" id="aiSettingsGroup">
+            <div>
+              <div class="settings-item-title" id="aiDisabledLabel">отключить AI-функции</div>
+              <div class="settings-item-desc">скрыть AI-инструменты и использовать локальные разминки</div>
+            </div>
+            <input type="checkbox" id="setAIDisabled" onchange="toggleAIFeaturesDisabled(this.checked)" aria-labelledby="aiDisabledLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-item-title" id="welcomeLabel">приветствие при запуске</div>
+              <div class="settings-item-desc">показывать экран с описанием возможностей</div>
+            </div>
+            <input type="checkbox" id="setShowWelcome" onchange="toggleShowWelcome(this.checked)" aria-labelledby="welcomeLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+          </div>
+          <div class="settings-row-col">
+            <button type="button" class="btn-act" style="width:100%;" onclick="closeSettings(); startOnboardingTour(true);">повторить интерактивное обучение</button>
+          </div>
         </div>
-        <div class="settings-pill-notice" id="setModalFooterNotice" aria-live="polite">
-          <span id="setNoticeIcon" class="settings-notice-icon"></span>
-          <span id="setNoticeMsg" class="settings-notice-msg"></span>
+
+        <!-- КАТЕГОРИЯ 4: ОБЛАКО И ДАННЫЕ -->
+        <div class="settings-cat-title">облако и данные</div>
+        <div class="settings-group-card" id="settingsCloudCard" style="padding: 12px 14px;">
+          <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <span>☁️ облачная синхронизация</span>
+          </div>
+          <div id="cloudSyncStatus" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+            <span class="sync-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
+            <span class="sync-text">не синхронизировано</span>
+          </div>
+
+          <div id="auth-guest-ui">
+            <input type="email" id="auth-email" class="input" placeholder="ваш email" style="margin-bottom: 8px;">
+            <input type="password" id="auth-password" class="input" placeholder="пароль" style="margin-bottom: 8px;">
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn-act btn-go" style="flex: 1; justify-content: center;" onclick="handleSignIn()">войти</button>
+              <button type="button" class="btn-act" style="flex: 1; justify-content: center;" onclick="handleSignUp()">регистрация</button>
+            </div>
+          </div>
+
+          <div id="auth-user-ui" style="display: none; text-align: center;">
+            <div style="font-size: 12px; color: var(--muted); margin-bottom: 4px;">вы вошли как:</div>
+            <div id="user-email-display" style="font-weight: 800; font-size: 13px; color: var(--accent); margin-bottom: 10px; word-break: break-all;"></div>
+            <button type="button" class="btn-act btn-danger" style="width: 100%; justify-content: center;" onclick="handleSignOut()">выйти из аккаунта</button>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06);">
+            <button class="btn-act" style="flex:1;" onclick="exportJSON()">экспорт</button>
+            <button class="btn-act" style="flex:1;" onclick="$('importFile').click()">импорт</button>
+            <input type="file" id="importFile" accept=".json,application/json" style="display:none;">
+          </div>
+          <button class="btn-act" id="btnUndoImport" style="width:100%; margin-top:8px; display:none;" onclick="undoImport()">отменить последний импорт</button>
+          <button class="btn-act btn-danger" style="width:100%; margin-top:8px;" onclick="resetAll()">сбросить все данные</button>
         </div>
-      </div>
+
+        <!-- Анимированная капсула настроек -->
+        <div class="settings-brand-pill" id="setModalFooter">
+          <div class="settings-pill-default" id="setModalFooterDefault">
+            <span class="settings-pill-logo">❖</span>
+            <span aria-hidden="true">•</span>
+            <span class="settings-pill-ver">studyflow v1.0</span>
+          </div>
+          <div class="settings-pill-notice" id="setModalFooterNotice" aria-live="polite">
+            <span id="setNoticeIcon" class="settings-notice-icon"></span>
+            <span id="setNoticeMsg" class="settings-notice-msg"></span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -2621,8 +2890,10 @@
       if (c.ep_autoarchive !== undefined) state.autoArchive = c.ep_autoarchive !== 'false';
       if (c.ep_ai_disabled !== undefined) state.aiDisabled = c.ep_ai_disabled === 'true';
       if (c.ep_sched_saved !== undefined) state.schedSaved = c.ep_sched_saved === 'true';
-      if (c.ep_school_start) state.schoolStart = c.ep_school_start;
-      if (c.ep_school_end) state.schoolEnd = c.ep_school_end;
+       if (c.ep_school_start) state.schoolStart = c.ep_school_start;
+       if (c.ep_school_end) state.schoolEnd = c.ep_school_end;
+       if (['horizontal', 'vertical', 'accordion'].includes(c.ep_sched_layout)) state.schedLayout = c.ep_sched_layout;
+       if (c.ep_sound !== undefined) state.sound = c.ep_sound !== 'false';
 
       try { if (c.ep_focus) state.focus = normalizeFocus(JSON.parse(c.ep_focus)); } catch (e) {}
       try { if (c.ep_sched) state.schedule = normalizeSchedule(JSON.parse(c.ep_sched)); } catch (e) {}
@@ -3007,6 +3278,8 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       welcomeShown: true,      // показывать приветствие при запуске
        autoArchive: true,       // автоархивация старых задач
        schedSaved: false,       // расписание сохранено — скрываем вкладку «график»
+       schedLayout: 'horizontal', // вид сетки расписания
+       sound: true,             // включение/выключение звуков таймера
        schedule: { 1: [], 2: [], 3: [], 4: [], 5: [] },
       tasks: [], archive: []
     };
@@ -3132,6 +3405,142 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     let brandCleanupTimer = null;
     let brandAnim = null;
 
+    // ---------- Динамический заголовок в Dynamic Island при скролле ----------
+    let isTitleCollapsed = false;
+    let titleAnimSeq = 0;
+    let activeCapsuleAnim = null;
+    let activeContentAnim = null;
+
+    const TAB_TITLES = {
+      overview: 'Обзор и статистика',
+      schedule: 'Школьный график',
+      add: 'Новое задание',
+      tasks: 'План работы',
+      archive: 'Архив заданий'
+    };
+
+    function resetCapsuleTitleImmediate(text = 'studyflow') {
+      titleAnimSeq += 1;
+      if (activeCapsuleAnim) { activeCapsuleAnim.cancel(); activeCapsuleAnim = null; }
+      if (activeContentAnim) { activeContentAnim.cancel(); activeContentAnim = null; }
+      const capsule = $('toast');
+      const contentEl = $('brandDefault');
+      const titleEl = document.querySelector('.brand-title');
+      if (capsule) capsule.style.removeProperty('width');
+      if (contentEl) {
+        contentEl.style.removeProperty('opacity');
+        contentEl.style.removeProperty('transform');
+        contentEl.style.removeProperty('filter');
+      }
+      if (titleEl) {
+        titleEl.textContent = text;
+      }
+    }
+
+    function setCapsuleTitle(text, direction = 'up') {
+      const capsule = $('toast');
+      const contentEl = $('brandDefault');
+      const titleEl = document.querySelector('.brand-title');
+      if (!capsule || !contentEl || !titleEl || titleEl.textContent === text) return;
+
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches || typeof contentEl.animate !== 'function') {
+        resetCapsuleTitleImmediate(text);
+        return;
+      }
+
+      const seq = ++titleAnimSeq;
+      if (activeCapsuleAnim) { activeCapsuleAnim.cancel(); activeCapsuleAnim = null; }
+      if (activeContentAnim) { activeContentAnim.cancel(); activeContentAnim = null; }
+      capsule.style.removeProperty('width');
+
+      const exitY = direction === 'up' ? '-18px' : '18px';
+      const enterY = direction === 'up' ? '18px' : '-18px';
+
+      const prevWidth = capsule.getBoundingClientRect().width;
+
+      const outAnim = contentEl.animate([
+        { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0px)' },
+        { opacity: 0, transform: `translate3d(0, ${exitY}, 0)`, filter: 'blur(3px)' }
+      ], {
+        duration: 135,
+        easing: 'cubic-bezier(0.4, 0, 1, 1)',
+        fill: 'forwards'
+      });
+      activeContentAnim = outAnim;
+
+      outAnim.onfinish = () => {
+        if (seq !== titleAnimSeq) return;
+
+        titleEl.textContent = text;
+        const nextWidth = capsule.getBoundingClientRect().width;
+
+        if (Math.abs(prevWidth - nextWidth) > 1.5 && typeof capsule.animate === 'function') {
+          const wAnim = capsule.animate([
+            { width: `${prevWidth}px` },
+            { width: `${nextWidth}px` }
+          ], {
+            duration: 340,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            fill: 'both'
+          });
+          activeCapsuleAnim = wAnim;
+          wAnim.onfinish = () => {
+            if (activeCapsuleAnim === wAnim) {
+              wAnim.cancel();
+              capsule.style.removeProperty('width');
+              activeCapsuleAnim = null;
+            }
+          };
+        }
+
+        const inAnim = contentEl.animate([
+          { opacity: 0, transform: `translate3d(0, ${enterY}, 0)`, filter: 'blur(3px)' },
+          { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0px)' }
+        ], {
+          duration: 240,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          fill: 'both'
+        });
+        activeContentAnim = inAnim;
+
+        inAnim.onfinish = () => {
+          if (seq !== titleAnimSeq) return;
+          outAnim.cancel();
+          inAnim.cancel();
+          activeContentAnim = null;
+        };
+      };
+    }
+
+    function checkTitleScroll() {
+      if (tState.minimized || $('toast').classList.contains('is-notifying')) return;
+
+      const activeSection = document.querySelector('.view-section.active');
+      if (!activeSection) return;
+
+      const titleEl = activeSection.querySelector('.title');
+      if (!titleEl) return;
+
+      const rect = titleEl.getBoundingClientRect();
+      const isPast = rect.bottom < 60;
+
+      if (isPast && !isTitleCollapsed) {
+        isTitleCollapsed = true;
+        const currentTab = activeSection.id.replace('view-', '');
+        setCapsuleTitle(TAB_TITLES[currentTab] || 'studyflow', 'up');
+      } else if (!isPast && isTitleCollapsed) {
+        isTitleCollapsed = false;
+        setCapsuleTitle('studyflow', 'down');
+      }
+    }
+
+    function initTitleScrollObserver() {
+      // Слушаем скролл и на window, и на document (на случай специфики мобилок)
+      window.removeEventListener('scroll', checkTitleScroll);
+      window.addEventListener('scroll', checkTitleScroll, { passive: true });
+      document.addEventListener('scroll', checkTitleScroll, { passive: true });
+    }
+
     function animateBrandState(notifying) {
       const capsule = $('toast');
       const notice = $('brandNotice');
@@ -3216,6 +3625,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         updateIslandUI();
       }
       animateBrandState(false);
+      // Если страница проскроллена — возвращаем название раздела
+      if (isTitleCollapsed && !tState.minimized) {
+        const cur = document.querySelector('.view-section.active')?.id.replace('view-', '');
+        setCapsuleTitle(TAB_TITLES[cur] || 'studyflow', 'up');
+      }
     }
 
     // ---------- Системные уведомления ----------
@@ -3461,9 +3875,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
          ep_autoarchive: String(state.autoArchive),
          ep_ai_disabled: String(state.aiDisabled),
          ep_sched_saved: String(state.schedSaved),
-         ep_school_start: state.schoolStart,
-         ep_school_end: state.schoolEnd,
-         ep_focus: JSON.stringify(state.focus),
+          ep_school_start: state.schoolStart,
+          ep_school_end: state.schoolEnd,
+          ep_sched_layout: state.schedLayout,
+          ep_sound: String(state.sound),
+          ep_focus: JSON.stringify(state.focus),
          ep_sched: JSON.stringify(state.schedule),
          ep_tasks: JSON.stringify(state.tasks),
          ep_archive: JSON.stringify(state.archive),
@@ -4025,8 +4441,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
        state.aiDisabled = readRaw('ep_ai_disabled') === 'true';
        state.schedSaved = readRaw('ep_sched_saved') === 'true';
        const sStart = readRaw('ep_school_start'); if (sStart) state.schoolStart = sStart;
-      const sEnd = readRaw('ep_school_end'); if (sEnd) state.schoolEnd = sEnd;
-      updateDaysConfig();
+       const sEnd = readRaw('ep_school_end'); if (sEnd) state.schoolEnd = sEnd;
+       const sl = readRaw('ep_sched_layout'); if (['horizontal', 'vertical', 'accordion'].includes(sl)) state.schedLayout = sl;
+       state.sound = readRaw('ep_sound') !== 'false';
+       updateDaysConfig();
 
     }
 
@@ -4051,6 +4469,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     }
 
     function beep(freq = 580, dur = 0.25) {
+      if (!state.sound) return;
       try {
         const ctx = getAudio();
         if (!ctx) return;
@@ -4122,7 +4541,6 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         || document.querySelectorAll('.nav-btn')[Math.max(0, VALID_TABS.indexOf(name))];
     }
     function tab(name, btn) {
-
       if (!VALID_TABS.includes(name)) name = 'overview';
       const target = $(`view-${name}`);
       if (!target) return;
@@ -4139,6 +4557,16 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       });
 
       if (name === 'add') prepareAddForm();
+
+      // Сброс скролла и заголовка при переключении
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      isTitleCollapsed = false;
+      if (!tState.minimized && !$('toast').classList.contains('is-notifying')) {
+        resetCapsuleTitleImmediate('studyflow');
+      }
     }
     function checkAutoArchive() {
       if (!state.autoArchive || !state.tasks.length) return;
@@ -4255,13 +4683,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       const open = state.tasks.length;
       const overdue = state.tasks.filter(isOverdue).length;
       const planned = state.tasks.reduce((a, t) => a + (COMP[t.comp]?.t || 30), 0);
-      $('statTotal').textContent = open;
       $('statOverdue').textContent = overdue;
       $('statPlanned').textContent = fmtMin(planned);
-      $('statCompleted').textContent = state.doneTotal;
-      const all = state.doneTotal + open;
-      const pct = all ? Math.round(state.doneTotal / all * 100) : 0;
-      $('progPercent').textContent = all ? `${pct}%` : '—';
+      const pct = open ? Math.round(state.doneTotal / (state.doneTotal + open) * 100) : 0;
+      $('progPercent').textContent = open || state.doneTotal ? `${pct}%` : '—';
       $('progFill').style.width = `${pct}%`;
 
       const row = $('weekPills');
@@ -4517,23 +4942,69 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     // ---------- Расписание ----------
     function updateDaysConfig() {}
 
+    let openSchedDays = new Set();
+
     function renderSchedule() {
       const grid = $('schedGrid');
       grid.innerHTML = '';
+      const layout = state.schedLayout || 'horizontal';
+
       for (let d = 1; d <= 5; d++) {
         const les = state.schedule[d] || [];
         const card = document.createElement('div');
-        card.className = 'glass';
+        card.className = 'glass sched-card';
         card.style.cssText = 'padding:12px 14px;margin-bottom:8px;';
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;margin-bottom:6px;">
-            <span>${DAYS[d]}</span>
-            <span style="font-size:11px;color:var(--muted);">${les.length ? `${les.length} уроков` : 'пусто'}</span>
-          </div>
-          <div>${les.length
-            ? les.map(l => `<span class="badge badge-neutral">${esc(l)}</span>`).join('')
-            : '<span style="font-size:12px;color:var(--muted);font-style:italic;">уроков нет (расписание не заполнено)</span>'}
-          </div>`;
+
+        if (layout === 'accordion') {
+          const isOpen = openSchedDays.has(d);
+          if (isOpen) card.classList.add('is-open');
+          card.innerHTML = `
+            <div class="sched-acc-header" style="display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px;">
+              <span>${DAYS[d]}</span>
+              <span style="font-size:11px;color:var(--muted);">
+                ${les.length ? `${les.length} уроков` : 'пусто'}
+                <span class="sched-acc-chevron">▾</span>
+              </span>
+            </div>
+            <div class="sched-acc-body" style="display:${isOpen ? 'block' : 'none'};margin-top:8px;">
+              ${les.length
+                ? `<div class="sched-vertical-list">${les.map((l, idx) => `
+                    <div class="sched-vertical-item">
+                      <span class="sched-num">${idx + 1}</span>
+                      <span>${esc(l)}</span>
+                    </div>`).join('')}</div>`
+                : '<span style="font-size:12px;color:var(--muted);font-style:italic;">уроков нет (расписание не заполнено)</span>'}
+            </div>`;
+          card.querySelector('.sched-acc-header').onclick = () => {
+            if (openSchedDays.has(d)) openSchedDays.delete(d);
+            else openSchedDays.add(d);
+            renderSchedule();
+          };
+        } else if (layout === 'vertical') {
+          card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;margin-bottom:6px;">
+              <span>${DAYS[d]}</span>
+              <span style="font-size:11px;color:var(--muted);">${les.length ? `${les.length} уроков` : 'пусто'}</span>
+            </div>
+            <div>${les.length
+              ? `<div class="sched-vertical-list">${les.map((l, idx) => `
+                  <div class="sched-vertical-item">
+                    <span class="sched-num">${idx + 1}</span>
+                    <span>${esc(l)}</span>
+                  </div>`).join('')}</div>`
+              : '<span style="font-size:12px;color:var(--muted);font-style:italic;">уроков нет (расписание не заполнено)</span>'}
+            </div>`;
+        } else {
+          card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;margin-bottom:6px;">
+              <span>${DAYS[d]}</span>
+              <span style="font-size:11px;color:var(--muted);">${les.length ? `${les.length} уроков` : 'пусто'}</span>
+            </div>
+            <div>${les.length
+              ? les.map(l => `<span class="badge badge-neutral">${esc(l)}</span>`).join('')
+              : '<span style="font-size:12px;color:var(--muted);font-style:italic;">уроков нет (расписание не заполнено)</span>'}
+            </div>`;
+        }
         grid.appendChild(card);
       }
     }
@@ -5230,7 +5701,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         return b.localeCompare(a);
       });
 
-      box.innerHTML = sortedDates.map(dateStr => {
+      box.innerHTML = sortedDates.map((dateStr, idx) => {
         const items = groups[dateStr];
         const label = getArchiveDateLabel(dateStr, today);
         const rowsHtml = items.map(a => {
@@ -5243,9 +5714,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
               ${isOverdueArchive ? '<span class="archive-status-badge">просрочено</span>' : ''}
             </div>`;
         }).join('');
+        const showClear = idx === 0;
         return `
           <div class="archive-group">
-            <div class="archive-group-title"><span>${esc(label)}</span><span style="opacity:0.5;">(${items.length})</span></div>
+            <div class="archive-group-title"><span>${esc(label)}</span><span style="opacity:0.5;">(${items.length})</span>${showClear ? ' <button class="archive-clear-btn" onclick="clearArchive()">очистить</button>' : ''}</div>
             <div class="glass archive-group-card">${rowsHtml}</div>
           </div>`;
       }).join('');
@@ -6526,17 +6998,40 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       updateAIFeatureVisibility();
       if ($('setAutoArchive')) $('setAutoArchive').checked = state.autoArchive;
       if ($('setHideSched')) $('setHideSched').checked = state.schedSaved;
+      if ($('setSound')) $('setSound').checked = state.sound;
+      updateSchedLayoutPickerUI();
       setDisplay('btnUndoImport', !!importBackup);
-    }
-    function openSettings() {
 
+      // Обновляем мета-данные в главном меню настроек
+      const themeNames = { dark: 'тёмный космос', light: 'светлое стекло', purple: 'неоновый аметист', emerald: 'изумрудная волна', sunset: 'закатный рубин' };
+      const themeMeta = $('settingsThemeMeta');
+      if (themeMeta) themeMeta.textContent = themeNames[state.theme] || state.theme;
+
+      const startNames = { auto: 'умный (по времени)', overview: 'обзор', schedule: 'график', add: 'новое задание', tasks: 'задачи', archive: 'архив' };
+      const startMeta = $('settingsStartMeta');
+      if (startMeta) startMeta.textContent = startNames[state.start] || state.start;
+
+      const soundMeta = $('settingsSoundMeta');
+      if (soundMeta) soundMeta.textContent = state.sound ? 'звуки включены' : 'звуки выключены';
+
+      const cloudMeta = $('settingsCloudMeta');
+      if (cloudMeta) cloudMeta.textContent = isAuthenticated ? 'облако активно' : 'локально';
+    }
+
+    function openSettings(focusCat = null) {
       fillSettings();
-      showModal($('setModal'), $('setTheme'));
+      const focusTarget = focusCat === 'cloud' && !isAuthenticated ? $('auth-email') : $('setTheme');
+      showModal($('setModal'), focusTarget);
+      if (focusCat === 'cloud' && $('settingsCloudCard')) {
+        $('settingsCloudCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
     function closeSettings() {
       hideModal($('setModal'));
       restoreSettingsFooter();
     }
+
+
 
     let setNoticeTimer = null;
     function showSettingsNotice(msg, icon = '', duration = 4500) {
@@ -6640,6 +7135,30 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       }
       showToast(state.liquid ? 'liquid glass включен' : 'liquid glass выключен');
     }
+
+    function changeSchedLayout(layout) {
+      if (!['horizontal', 'vertical', 'accordion'].includes(layout)) return;
+      state.schedLayout = layout;
+      updateSchedLayoutPickerUI();
+      save();
+      renderSchedule();
+      const names = { horizontal: 'плитками', vertical: 'списком', accordion: 'по клику' };
+      showToast(`вид расписания: ${names[layout]}`);
+    }
+
+    function updateSchedLayoutPickerUI() {
+      document.querySelectorAll('#schedLayoutPicker .layout-option').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.layout === state.schedLayout);
+      });
+    }
+
+    function toggleSound(en) {
+      state.sound = Boolean(en);
+      save();
+      if (state.sound) beep(620, 0.15);
+      showToast(state.sound ? 'звуки таймера включены' : 'звуки таймера выключены');
+    }
+
     function changeStartPage(p) {
       if (!VALID_TABS.includes(p)) return;
       state.start = p;
@@ -6674,7 +7193,9 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
         welcomeShown: state.welcomeShown,
         autoArchive: state.autoArchive,
         aiDisabled: state.aiDisabled,
-        schedSaved: state.schedSaved
+        schedSaved: state.schedSaved,
+        schedLayout: state.schedLayout,
+        sound: state.sound
       };
       let url = '';
       try {
@@ -6714,7 +7235,9 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       if (typeof d.welcomeShown === 'boolean') state.welcomeShown = d.welcomeShown;
       if (typeof d.autoArchive === 'boolean') state.autoArchive = d.autoArchive;
       if (typeof d.aiDisabled === 'boolean') state.aiDisabled = d.aiDisabled;
-      if (typeof d.schedSaved === 'boolean') state.schedSaved = d.schedSaved;
+       if (typeof d.schedSaved === 'boolean') state.schedSaved = d.schedSaved;
+       if (['horizontal', 'vertical', 'accordion'].includes(d.schedLayout)) state.schedLayout = d.schedLayout;
+       if (typeof d.sound === 'boolean') state.sound = d.sound;
       // Фильтр и день с прошлых данных могут не подходить новым, поэтому сбрасываем.
       state.filter = 'all';
       state.curDay = 1;
@@ -7658,6 +8181,9 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
 
       checkAutoArchive();
       renderAll();
+
+      // Запуск наблюдателя за скроллом заголовков
+      initTitleScrollObserver();
 
       const start = state.start;
       let resolvedStart = start;
