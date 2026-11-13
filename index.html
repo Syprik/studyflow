@@ -653,6 +653,10 @@
     }
     .stat-icon { font-size: 15px; opacity: 0.55; line-height: 1; }
     .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+    .next-task-cell { grid-column: span 2; justify-content: space-between; }
+    .next-task-info { min-width: 0; flex: 1; }
+    .next-task-title { font-size: 14px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+    .next-task-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .prog-bg { height: 6px; background: var(--track); border-radius: 999px; overflow: hidden; margin-top: 10px; }
     .prog-fill { height: 100%; width: 0%; background: var(--grad); transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 10px var(--glow); }
@@ -2120,11 +2124,15 @@
           <div class="stat-label">просрочено</div>
           <div class="stat-val" style="color: var(--danger);" id="statOverdue">0</div>
         </div>
-        <div class="glass stat-cell">
-          <div class="stat-label">запланировано</div>
-          <div class="stat-val" id="statPlanned">0 мин</div>
-        </div>
-      </div>
+         <div class="glass stat-cell">
+           <div class="stat-label">запланировано</div>
+           <div class="stat-val" id="statPlanned">0 мин</div>
+         </div>
+         <div class="glass stat-cell next-task-cell" id="nextTaskCard">
+           <div class="stat-label">следующая задача</div>
+           <div id="nextTaskBody" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;"></div>
+         </div>
+       </div>
 
       <div class="glass" style="padding: 14px; margin-bottom: 16px;">
         <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; cursor: pointer;" onclick="toggleProgressStats()">
@@ -2342,7 +2350,7 @@
             </div>
             <input type="checkbox" id="setLiquid" onchange="toggleLiquid(this.checked)" aria-labelledby="liquidLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
           </div>
-          <div class="settings-row-col">
+          <div class="settings-row-col" id="schedLayoutGroup">
             <div class="settings-item-title">вид сетки в «графике»</div>
             <div class="settings-item-desc">как отображать уроки в расписании</div>
             <div class="layout-picker-grid" id="schedLayoutPicker">
@@ -2419,9 +2427,7 @@
             </div>
             <input type="checkbox" id="setHideSched" onchange="toggleHideSched(this.checked)" aria-labelledby="schedSavedLabel" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
           </div>
-          <div class="settings-row-col">
-            <button type="button" class="btn-act" style="width:100%;" onclick="closeSettings(); tab('schedule', navBtn('schedule'));">📅 открыть школьный график</button>
-          </div>
+
         </div>
 
         <!-- КАТЕГОРИЯ 3: ТАЙМЕР И AI -->
@@ -2470,6 +2476,17 @@
             <span class="sync-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
             <span class="sync-text">не синхронизировано</span>
           </div>
+
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="label" for="setSyncMode">режим синхронизации:</label>
+            <select id="setSyncMode" class="input" onchange="changeSyncMode(this.value)">
+              <option value="auto">авто (по времени изменений)</option>
+              <option value="cloud">приоритет облака</option>
+              <option value="local">приоритет этого устройства</option>
+              <option value="manual">только вручную (не перезаписывать)</option>
+            </select>
+          </div>
+          <button type="button" id="btnForceSync" class="btn-act" style="width: 100%; margin-bottom: 10px; display: none;" onclick="forceCloudSync()">🔄 синхронизировать сейчас</button>
 
           <div id="auth-guest-ui">
             <input type="email" id="auth-email" class="input" placeholder="ваш email" style="margin-bottom: 8px;">
@@ -2920,13 +2937,20 @@
       checkAIAvailability();
     }
 
-    async function loadFromCloud(userId, showNotify = true) {
+    async function loadFromCloud(userId, showNotify = true, force = false) {
       if (!sbClient || !userId) {
         setSyncStatus('offline');
         return;
       }
+
+      // manual mode — ничего не делаем
+      if (!force && state.syncMode === 'manual') {
+        setSyncStatus('offline', 'ручной режим');
+        return;
+      }
+
       // Если прямо сейчас есть несохранённые локальные правки в очереди — сначала пушим их в облако
-      if (cloudSyncTimer || readRaw('ep_sync_dirty') === '1') {
+      if ((cloudSyncTimer || readRaw('ep_sync_dirty') === '1') && state.syncMode !== 'cloud') {
         save(true);
         return;
       }
@@ -2971,6 +2995,22 @@
         const localTs = Number(localPayload.ep_updated_at || 0);
         const cloudTs = Number(cloudPayload.ep_updated_at || 0);
 
+        if (state.syncMode === 'cloud') {
+          if (cloudTs > localTs || localTs === 0) {
+            applyCloudPayload(cloudPayload);
+            setSyncStatus('saved');
+          } else if (localTs > cloudTs) {
+            save(true);
+          }
+          return;
+        }
+
+        if (state.syncMode === 'local') {
+          save(true);
+          return;
+        }
+
+        // auto
         if (localTs > 0 && cloudTs > 0) {
           if (localTs > cloudTs) {
             save(true);
@@ -2983,29 +3023,16 @@
           return;
         }
 
-        // Если локальные данные уже имеют метку времени, а в облаке лежит старый слепок без метки — пушим локальные
         if (localTs > 0 && cloudTs === 0) {
           save(true);
           return;
         }
 
-        let savedDecision = '';
-        try { savedDecision = readRaw('ep_sync_decision_' + userId) || ''; } catch (e) {}
-
-        if (savedDecision === 'local') {
-          save(true);
-          return;
+        // Только если у обоих источников нет меток времени — спрашиваем пользователя
+        if (localTs === 0 && cloudTs === 0) {
+          showSyncConflict(cloudPayload, localPayload, userId);
+          setSyncStatus('offline');
         }
-        if (savedDecision === 'cloud') {
-          applyCloudPayload(cloudPayload);
-          // Сразу записываем метку времени в облако, чтобы следующие изменения шли по таймстемпам
-          save(true);
-          return;
-        }
-
-        // 4. Первый вход без меток времени — спрашиваем пользователя
-        showSyncConflict(cloudPayload, localPayload, userId);
-        setSyncStatus('offline');
       } catch (err) {
         console.error('критическая ошибка разбора данных облака:', err);
         setSyncStatus('error');
@@ -3113,20 +3140,14 @@
         return;
       }
 
-      // Запоминаем решение для этого пользователя, чтобы больше не спрашивать
-      try {
-        const decisionKey = 'ep_sync_decision_' + ctx.userId;
-        writeRaw(decisionKey, choice);
-      } catch (e) {}
-
       if (choice === 'cloud') {
-        // Локальное → облачное
         applyCloudPayload(ctx.cloudPayload);
+        writeRaw('ep_updated_at', String(Date.now()));
+        save(true, true);
         showToast('загружены данные облака', '☁️');
       } else if (choice === 'local') {
-        // Облачное → локальное (перезапись облака)
-        // State уже содержит локальные данные на момент вызова loadFromCloud
-        save(true);
+        writeRaw('ep_updated_at', String(Date.now()));
+        save(true, true);
         showToast('локальные данные загружены в облако', '☁️');
       }
     }
@@ -3278,9 +3299,10 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       welcomeShown: true,      // показывать приветствие при запуске
        autoArchive: true,       // автоархивация старых задач
        schedSaved: false,       // расписание сохранено — скрываем вкладку «график»
-       schedLayout: 'horizontal', // вид сетки расписания
-       sound: true,             // включение/выключение звуков таймера
-       schedule: { 1: [], 2: [], 3: [], 4: [], 5: [] },
+        schedLayout: 'horizontal', // вид сетки расписания
+        sound: true,             // включение/выключение звуков таймера
+        syncMode: 'auto',        // режим облачной синхронизации
+        schedule: { 1: [], 2: [], 3: [], 4: [], 5: [] },
       tasks: [], archive: []
     };
     const loadWarnings = [];
@@ -3469,7 +3491,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       activeContentAnim = outAnim;
 
       outAnim.onfinish = () => {
-        if (seq !== titleAnimSeq) return;
+        if (seq !== titleAnimSeq || $('toast').classList.contains('is-notifying')) return;
 
         titleEl.textContent = text;
         const nextWidth = capsule.getBoundingClientRect().width;
@@ -3545,6 +3567,15 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       const capsule = $('toast');
       const notice = $('brandNotice');
       clearTimeout(brandCleanupTimer);
+
+      if (notifying) {
+        titleAnimSeq += 1;
+        if (activeCapsuleAnim) { activeCapsuleAnim.cancel(); activeCapsuleAnim = null; }
+        if (activeContentAnim) { activeContentAnim.cancel(); activeContentAnim = null; }
+        $('brandDefault').style.removeProperty('opacity');
+        $('brandDefault').style.removeProperty('transform');
+        $('brandDefault').style.removeProperty('filter');
+      }
 
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
         if (brandAnim) { brandAnim.cancel(); brandAnim = null; }
@@ -3887,7 +3918,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
        };
      }
 
-     function save(syncCloud = true) {
+      function save(syncCloud = true, force = false) {
        if (resetting) return true;
        const nowTs = syncCloud ? Date.now() : (Number(readRaw('ep_updated_at')) || Date.now());
        const data = buildStoragePayload(nowTs);
@@ -3907,7 +3938,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
          showToast('не удалось сохранить данные в браузере', '!');
        }
 
-       if (syncCloud && sbClient) {
+        if (syncCloud && sbClient && (force || state.syncMode !== 'manual')) {
          clearTimeout(cloudSyncTimer);
          cloudSyncTimer = setTimeout(async () => {
            cloudSyncTimer = null;
@@ -4444,6 +4475,7 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
        const sEnd = readRaw('ep_school_end'); if (sEnd) state.schoolEnd = sEnd;
        const sl = readRaw('ep_sched_layout'); if (['horizontal', 'vertical', 'accordion'].includes(sl)) state.schedLayout = sl;
        state.sound = readRaw('ep_sound') !== 'false';
+       const sm = readRaw('ep_sync_mode'); if (['auto', 'cloud', 'local', 'manual'].includes(sm)) state.syncMode = sm;
        updateDaysConfig();
 
     }
@@ -4685,8 +4717,9 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       const planned = state.tasks.reduce((a, t) => a + (COMP[t.comp]?.t || 30), 0);
       $('statOverdue').textContent = overdue;
       $('statPlanned').textContent = fmtMin(planned);
-      const pct = open ? Math.round(state.doneTotal / (state.doneTotal + open) * 100) : 0;
-      $('progPercent').textContent = open || state.doneTotal ? `${pct}%` : '—';
+      const all = state.doneTotal + open;
+      const pct = all ? Math.round(state.doneTotal / all * 100) : 0;
+      $('progPercent').textContent = all ? `${pct}%` : '—';
       $('progFill').style.width = `${pct}%`;
 
       const row = $('weekPills');
@@ -4729,6 +4762,44 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
             <span class="badge ${PRIO[t.prio].b}">${PRIO[t.prio].text}</span>
           </div>`).join('')
         : '<div style="color:var(--muted);font-size:12px;">нет активных заданий</div>';
+
+      // ---------- Следующая задача ----------
+      const nextBody = $('nextTaskBody');
+      if (nextBody) {
+        if (!state.tasks.length) {
+          nextBody.innerHTML = `
+            <div class="next-task-info">
+              <div class="next-task-title" style="color:var(--success);">все задачи закрыты</div>
+              <div class="next-task-meta">можно отдохнуть или запланировать новые дела</div>
+            </div>
+            <button type="button" class="btn-act" style="flex-shrink:0;" onclick="tab('add', navBtn('add'))">+ добавить</button>`;
+        } else {
+          const W = { critical: 5, urgent: 4, important: 3, normal: 2, later: 1 };
+          const sorted = [...state.tasks].sort((a, b) => {
+            const oa = isOverdue(a) ? 1 : 0, ob = isOverdue(b) ? 1 : 0;
+            if (oa !== ob) return ob - oa;
+            const p = (W[b.prio] || 0) - (W[a.prio] || 0);
+            if (p) return p;
+            const d = dueKey(a).localeCompare(dueKey(b));
+            if (d) return d;
+            return (COMP[a.comp]?.t || 30) - (COMP[b.comp]?.t || 30);
+          });
+          const next = sorted[0];
+          const mins = COMP[next.comp]?.t || 25;
+          const dueTxt = next.due ? daysLeftLabel(next.due) : '';
+          const metaParts = [dueTxt, `${mins} мин`].filter(Boolean).join(' · ');
+
+          nextBody.innerHTML = `
+            <div class="next-task-info">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="badge badge-prio">${esc(next.subj)}</span>
+                <span class="next-task-meta" style="margin-top:0;">${esc(metaParts)}</span>
+              </div>
+              <div class="next-task-title" title="${esc(next.text)}">${esc(next.text)}</div>
+            </div>
+            <button type="button" class="btn-start" style="flex-shrink:0;padding:8px 14px;" onclick="openTimer('${esc(next.id)}')">▶ старт</button>`;
+        }
+      }
 
       renderPeriodStats();
       
@@ -4914,7 +4985,45 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       const isHidden = expanded.style.display === 'none' || expanded.style.display === '';
       expanded.style.display = isHidden ? 'block' : 'none';
       if (isHidden) {
-        renderPeriodStats();
+      // ---------- Следующая задача ----------
+      const nextBody = $('nextTaskBody');
+      if (nextBody) {
+        if (!state.tasks.length) {
+          nextBody.innerHTML = `
+            <div class="next-task-info">
+              <div class="next-task-title" style="color:var(--success);">все задачи закрыты</div>
+              <div class="next-task-meta">можно отдохнуть или запланировать новые дела</div>
+            </div>
+            <button type="button" class="btn-act" style="flex-shrink:0;" onclick="tab('add', navBtn('add'))">+ добавить</button>`;
+        } else {
+          const W = { critical: 5, urgent: 4, important: 3, normal: 2, later: 1 };
+          const sorted = [...state.tasks].sort((a, b) => {
+            const oa = isOverdue(a) ? 1 : 0, ob = isOverdue(b) ? 1 : 0;
+            if (oa !== ob) return ob - oa;
+            const p = (W[b.prio] || 0) - (W[a.prio] || 0);
+            if (p) return p;
+            const d = dueKey(a).localeCompare(dueKey(b));
+            if (d) return d;
+            return (COMP[a.comp]?.t || 30) - (COMP[b.comp]?.t || 30);
+          });
+          const next = sorted[0];
+          const mins = COMP[next.comp]?.t || 25;
+          const dueTxt = next.due ? daysLeftLabel(next.due) : '';
+          const metaParts = [dueTxt, `${mins} мин`].filter(Boolean).join(' · ');
+
+          nextBody.innerHTML = `
+            <div class="next-task-info">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="badge badge-prio">${esc(next.subj)}</span>
+                <span class="next-task-meta" style="margin-top:0;">${esc(metaParts)}</span>
+              </div>
+              <div class="next-task-title" title="${esc(next.text)}">${esc(next.text)}</div>
+            </div>
+            <button type="button" class="btn-start" style="flex-shrink:0;padding:8px 14px;" onclick="openTimer('${esc(next.id)}')">▶ старт</button>`;
+        }
+      }
+
+      renderPeriodStats();
       }
     }
 
@@ -5043,8 +5152,16 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
     function toggleHideSched(hidden) {
       state.schedSaved = Boolean(hidden);
       updateAddTabVisibility();
+      updateSchedLayoutVisibility();
       save();
       showToast(state.schedSaved ? 'вкладка «график» скрыта из меню' : 'вкладка «график» возвращена в меню');
+    }
+
+    function updateSchedLayoutVisibility() {
+      const layoutGroup = $('schedLayoutGroup');
+      if (layoutGroup) {
+        layoutGroup.style.display = state.schedSaved ? 'none' : '';
+      }
     }
 
     function confirmSchedSave() {
@@ -6998,8 +7115,11 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       updateAIFeatureVisibility();
       if ($('setAutoArchive')) $('setAutoArchive').checked = state.autoArchive;
       if ($('setHideSched')) $('setHideSched').checked = state.schedSaved;
+      updateSchedLayoutVisibility();
       if ($('setSound')) $('setSound').checked = state.sound;
       updateSchedLayoutPickerUI();
+      if ($('setSyncMode')) $('setSyncMode').value = state.syncMode || 'auto';
+      if ($('btnForceSync')) $('btnForceSync').style.display = isAuthenticated ? 'block' : 'none';
       setDisplay('btnUndoImport', !!importBackup);
 
       // Обновляем мета-данные в главном меню настроек
@@ -7031,7 +7151,43 @@ function generateSmartRoutine(query = '', cycle = 1, comp = 'normal_comp') {
       restoreSettingsFooter();
     }
 
+    function changeSyncMode(mode) {
+      if (!['auto', 'cloud', 'local', 'manual'].includes(mode)) return;
+      state.syncMode = mode;
+      writeRaw('ep_sync_mode', mode);
+      const names = {
+        auto: 'авто (по времени)',
+        cloud: 'приоритет облака',
+        local: 'приоритет устройства',
+        manual: 'только вручную'
+      };
+      showToast(`синхронизация: ${names[mode]}`);
+      if (isAuthenticated && mode !== 'manual') {
+        forceCloudSync();
+      } else if (mode === 'manual') {
+        setSyncStatus('offline', 'ручной режим');
+      }
+    }
 
+    async function forceCloudSync() {
+      if (!sbClient || !isAuthenticated) {
+        showToast('сначала войдите в аккаунт', '!');
+        return;
+      }
+      if (!navigator.onLine) {
+        showToast('нет подключения к интернету', '!');
+        return;
+      }
+      const { data: { user } } = await sbClient.auth.getUser().catch(() => ({ data: {} }));
+      if (!user) return;
+      if (state.syncMode === 'local') {
+        writeRaw('ep_updated_at', String(Date.now()));
+        save(true, true);
+        showToast('данные устройства отправлены в облако', '☁️');
+      } else {
+        await loadFromCloud(user.id, true, true);
+      }
+    }
 
     let setNoticeTimer = null;
     function showSettingsNotice(msg, icon = '', duration = 4500) {
